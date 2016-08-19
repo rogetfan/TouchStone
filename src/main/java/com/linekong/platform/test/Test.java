@@ -1,6 +1,8 @@
-package com.linekong.platform;
+package com.linekong.platform.test;
 
-public class Main {
+import com.linekong.platform.lr.Actions;
+
+public class Test {
 
 	public static void main(String[] args) 
 	{

@@ -1,4 +1,4 @@
-package com.linekong.platform;
+package com.linekong.platform.lr;
 /**
  * LoadRunner Java script. (Build: _build_number_)
  * 
@@ -6,16 +6,11 @@ package com.linekong.platform;
  *                     
  */
 
-import com.linekong.platform.lr.LrTransHelper;
-import com.linekong.platform.lr.LrTransManager;
-import com.linekong.platform.lr.LrTransStatus;
-
-import lrapi.lr;
 
 public class Actions {
 
-	public int init() throws Throwable {
-		System.out.println("dassdadada");
+	public int init() throws Throwable 
+	{
 		return 0;
 	}// end of init
 
