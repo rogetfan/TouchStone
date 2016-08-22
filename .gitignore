@@ -1,0 +1,17 @@
+*.class
+# Package Files #
+*.jar
+*.war
+*.ear
+ 
+# ignore Maven generated target folders
+target/
+bin/
+ 
+# ignore eclipse files
+# This configuration is only suited for maven project,there will be 
+# troubles when it is a assambled by Ant
+.project
+.classpath
+.settings
+.metadata

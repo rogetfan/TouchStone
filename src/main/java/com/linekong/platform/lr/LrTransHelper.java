@@ -1,5 +1,4 @@
 package com.linekong.platform.lr;
-
 import lrapi.lr;
 
 public class LrTransHelper {
@@ -8,7 +7,8 @@ public class LrTransHelper {
 
 	}
 
-	public static void set_transaction(LrTransStatus status) {
+	public static void set_transaction(LrTransStatus status) 
+	{
 		lr.set_transaction(status.transactionName, status.duration, status.status);
 	}
 

@@ -6,14 +6,13 @@
 	<artifactId>PerformaceTest</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
-
 	<name>PerformaceTest</name>
 	<url>http://maven.apache.org</url>
-
 	<properties>
+		<maven.compiler.source>1.7</maven.compiler.source>
+		<maven.compiler.target>1.7</maven.compiler.target>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
-
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
@@ -27,7 +26,8 @@
 			<version>4.1.1</version>
 		</dependency>
 		<dependency>
-			<!-- mvn install:install-file -DgroupId=com.loadrunner -DartifactId=lrapi -Dversion=1.0 -Dpackaging=jar -Dfile=api.jar -->
+			<!-- mvn install:install-file -DgroupId=com.loadrunner -DartifactId=lrapi 
+				-Dversion=1.0 -Dpackaging=jar -Dfile=api.jar -->
 			<groupId>com.loadrunner</groupId>
 			<artifactId>lrapi</artifactId>
 			<version>1.0</version>
