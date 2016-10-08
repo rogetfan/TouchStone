@@ -12,7 +12,7 @@ public class Actions {
 	public int init() throws Throwable 
 	{
 		return 0;
-	}// end of init
+	}
 
 	public int action() throws Throwable {
 		while (true) {
@@ -32,5 +32,5 @@ public class Actions {
 
 	public int end() throws Throwable {
 		return 0;
-	}// end of end
+	}
 }

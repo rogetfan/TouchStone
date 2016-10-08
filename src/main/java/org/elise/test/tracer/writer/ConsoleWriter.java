@@ -1,7 +1,6 @@
 package org.elise.test.tracer.writer;
 
 import java.util.concurrent.LinkedBlockingQueue;
-
 import org.elise.test.tracer.TracerObject;
 
 public class ConsoleWriter {
@@ -10,6 +9,7 @@ public class ConsoleWriter {
 	private LinkedBlockingQueue<TracerObject> queue;
 
 	public ConsoleWriter() {
+		queue  = new LinkedBlockingQueue<TracerObject>();
 		writeToConsole = new Runnable() {
 
 			public void run() {
@@ -18,6 +18,11 @@ public class ConsoleWriter {
 			}
 
 		};
+	}
+
+	public void write(TracerObject log)
+	{
+
 	}
 
 	public void start() {

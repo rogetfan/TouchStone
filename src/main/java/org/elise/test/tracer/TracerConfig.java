@@ -1,7 +1,6 @@
 package org.elise.test.tracer;
 
 import java.util.Properties;
-
 import org.elise.test.config.Configuration;
 
 public class TracerConfig implements Configuration {
@@ -30,6 +29,7 @@ public class TracerConfig implements Configuration {
 		file = TracerLevelEnum.parseFromInt(Integer.parseInt(prop.getProperty("fileWriterLevel", "1")));
 
 	}
+
 
 	public TracerLevelEnum getConsoleLevel() {
 		return console;

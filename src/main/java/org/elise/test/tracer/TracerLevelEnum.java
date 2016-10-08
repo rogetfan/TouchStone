@@ -24,6 +24,21 @@ public enum TracerLevelEnum {
 		this.levelValue = levelValue;
 	}
 
+	/**
+	 * If tracer level is available
+	 * return true,else return false;
+	 * @return Boolean
+	 * */
+	public boolean compare(TracerLevelEnum level)
+	{
+        if(this.getLevelVaule() >= level.getLevelVaule()) {
+           return true;
+		}
+		else {
+           return false;
+		}
+	}
+
 	public String getLevelName() {
 		return levelName;
 	}

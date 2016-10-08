@@ -17,8 +17,7 @@ public class StringUtil {
 	public static final String UNDER_SCORE = "_";
 	public static final String HYPHEN = "-";
 	
-	public static String getThreadName(Thread t)
-	{
+	public static String getThreadName(Thread t) {
 		if (t == null)
 			return EmptyString;
 

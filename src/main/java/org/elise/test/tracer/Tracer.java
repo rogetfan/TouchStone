@@ -15,25 +15,24 @@ public class Tracer
     }
 	
     // Only compared with console level
-    public boolean isInfoTrace()
+    public boolean isInfoAvailable()
     {
-       return TracerConfig.getInstance().getConsoleLevel().equals(TracerLevelEnum.INFO);
-       
+       return TracerConfig.getInstance().getConsoleLevel().compare(TracerLevelEnum.INFO);
     }
     // Only compared with console level
-    public boolean isWarnTrace()
+    public boolean isWarnAvailable()
     {
-    	return TracerConfig.getInstance().getConsoleLevel().equals(TracerLevelEnum.WARN);
+    	return TracerConfig.getInstance().getConsoleLevel().compare(TracerLevelEnum.WARN);
     }
     // Only compared with console level
-    public boolean isSpecialTrace()
+    public boolean isSpecialAvailable()
     {
-    	return TracerConfig.getInstance().getConsoleLevel().equals(TracerLevelEnum.SPECIAL);
+    	return TracerConfig.getInstance().getConsoleLevel().compare(TracerLevelEnum.SPECIAL);
     }
     // Only compared with console level
-    public boolean isErrorTrace()
+    public boolean isErrorAvailable()
     {
-    	return TracerConfig.getInstance().getConsoleLevel().equals(TracerLevelEnum.ERROR);
+    	return TracerConfig.getInstance().getConsoleLevel().compare(TracerLevelEnum.ERROR);
     }
     
     
