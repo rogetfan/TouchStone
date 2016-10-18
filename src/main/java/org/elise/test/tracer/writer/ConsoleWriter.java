@@ -13,7 +13,6 @@ public class ConsoleWriter {
 		writeToConsole = new Runnable() {
 
 			public void run() {
-				// TODO Auto-generated method stub
 
 			}
 

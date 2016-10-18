@@ -9,7 +9,7 @@ public class LrTransManager {
 		return CONTAINER.take();
 	}
 
-	public static void addTransaction(String name, Double duration, Boolean pass) {
+	public static void addStatus(String name, Double duration, Boolean pass) {
 		LrTransStatus status = new LrTransStatus(name, duration, pass);
 		CONTAINER.add(status);
 	}

@@ -28,7 +28,7 @@ public class Actions {
 			}
 
 		}
-	}// end of action
+	}// end of transaction
 
 	public int end() throws Throwable {
 		return 0;

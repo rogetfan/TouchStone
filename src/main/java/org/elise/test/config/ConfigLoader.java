@@ -1,5 +1,6 @@
 package org.elise.test.config;
 
+import java.awt.*;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -8,10 +9,13 @@ import java.io.InputStream;
 import java.util.Properties;
 
 import org.elise.test.exception.LoadConfigException;
+import org.elise.test.framework.FrameworkConfig;
+import org.elise.test.tracer.Tracer;
+import org.elise.test.tracer.TracerConfig;
 
 public class ConfigLoader {
 	private static ConfigLoader loader;
-
+	private static Tracer tracer = Tracer.getInstance(ConfigLoader.class);
 	private ConfigLoader() {
 
 	}
@@ -23,26 +27,33 @@ public class ConfigLoader {
 		return loader;
 	}
 
-	public void loadFile(String filePath,Configuration ... configs) throws LoadConfigException {
+	public void loadProperties(String filePath,Configuration ... configs) throws LoadConfigException {
 		Properties prop = new Properties();
 		InputStream in;
 		try {
 			in = new BufferedInputStream(new FileInputStream(filePath));
 			prop.load(in);
-			loadProperties(prop);
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			System.err.println("Read Configuration From File Failed");
+			tracer.writeError("File not be found",e);
 			throw  new LoadConfigException("");
 
 		} catch (IOException e) {
-			System.err.println("Read Propertities From File Failed");
-			e.printStackTrace();
+			tracer.writeError("Read Propertities From File Failed",e);
 			throw  new LoadConfigException("");
 		}
+		for(Configuration config:configs)
+             config.loadConfiguration(prop);
 	}
-	private static void loadProperties(Properties prop) 
+	public static void main(String args[])
 	{
-          
+		TracerConfig.getInstance().loadConfiguration(new Properties());
+		FrameworkConfig.getInstance().loadConfiguration(new Properties());
+		System.out.println(TracerConfig.getInstance().getConsoleLevel());
+		System.out.println(TracerConfig.getInstance().getFileLevel());
+		System.out.println(TracerConfig.getInstance().getRemoteLevel());
+		System.out.println(FrameworkConfig.getInstance().getMaxIntervalTimeStamp());
+		System.out.println(FrameworkConfig.getInstance().getVirtualUserCount());
 	}
 }
+
+
