@@ -10,7 +10,7 @@ public class Test {
 		try {
 			a.init();
 			//a.action();
-			Thread.sleep(100*1000);
+			Thread.sleep(60*60*1000);
 			a.end();
 		} catch (Throwable e) {
 			

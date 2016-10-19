@@ -3,7 +3,7 @@ package org.elise.test.util;
 public class StringUtil {
 	 
 	public static final String EmptyString = "";
-	public static final String ENDLINE = "/r/n";
+	public static final String ENDLINE = "\r\n";
 	public static final String TAB = "        ";
 	public static final String SHARP = "#";
 	public static final String COMMA =  ",";

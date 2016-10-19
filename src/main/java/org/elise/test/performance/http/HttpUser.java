@@ -31,8 +31,8 @@ public class HttpUser extends VirtualUser<HttpUserInfo> {
 
             @Override
             public void error(String responseMessage, Integer statusCode) {
-                System.out.println("Response length is " + responseMessage.getBytes());
-                System.out.println("Response Status Code is" + statusCode);
+                System.out.println("Response length is " + responseMessage.length());
+                System.out.println("Response status code is " + statusCode);
             }
 
             @Override
@@ -49,13 +49,16 @@ public class HttpUser extends VirtualUser<HttpUserInfo> {
         HttpTransaction trans1 = manager.createHttpTransaction("GET", "http://zhidao.baidu.com", 80, "/link", action1);
         trans1.setParameters("url", "z8PzLn5W7WrghaIw7M21wGIMRYl8R0Ufn_zaj8gQhC8JO08mZHLe_cjIyfY5UJ_cZKQSp-7tEJpCbDDlDD8CTnlb6Me8Vq8X36-xohnuALq");
         trans1.setTransactionCallBack(callback);
-        HttpTransaction trans2 = manager.createHttpTransaction("GET", "http://zhidao.baidu.com", 80, "/link", action2);
-        trans2.setParameters("url", "z8PzLn5W7WrghaIw7M21wGIMRYl8R0Ufn_zaj8gQhC8JO08mZHLe_cjIyfY5UJ_cZKQSp-7tEJpCbDDlDD8CTnlb6Me8Vq8X36-xohnuALq");
+        trans1.setIntervalTimeStamp(200L);
+        HttpTransaction trans2 = manager.createHttpTransaction("POST", "http://192.168.50.225", 8009, "/cams/login.htm", action2);
+        //trans2.setParameters("url", "z8PzLn5W7WrghaIw7M21wGIMRYl8R0Ufn_zaj8gQhC8JO08mZHLe_cjIyfY5UJ_cZKQSp-7tEJpCbDDlDD8CTnlb6Me8Vq8X36-xohnuALq");
         trans2.setTransactionCallBack(callback);
-        trans1.setNextTransaction(trans2);
-        trans2.setNextTransaction(null);
+        trans2.setIntervalTimeStamp(200L);
+        trans2.setHttpContent("userName=passport_0&userPwd=passport_0&remember=1".getBytes());
+        trans1.setNextTransaction(null);
+        trans2.setNextTransaction(trans1);
         try {
-            trans1.sendRequest();
+            trans2.sendRequest();
         } catch (NullRequestException e) {
             e.printStackTrace();
         } catch (InvalidRequestException e) {

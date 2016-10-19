@@ -31,7 +31,7 @@ public class HttpTransactionManager extends TransactionManager {
     }
 
     /**
-     * DomainName结尾不带"/"
+     * DomainName shouldn't contain "/" in the end
      */
     public HttpTransaction createHttpTransaction(String method, String domainName, Integer remotePort, String remotePath, String transactionName) {
         return new HttpTransaction(method, domainName, remotePort, remotePath, transactionName, this);
@@ -81,12 +81,12 @@ public class HttpTransactionManager extends TransactionManager {
                         e.printStackTrace();
                     }
                     if (httpResponse.getStatusLine().getStatusCode() >= 200 && httpResponse.getStatusLine().getStatusCode() < 300) {
-                        LrTransStatusManager.addStatus(transactionName, ((double) System.currentTimeMillis() - begin) / 1000.0, true);
+                        LrTransStatusManager.addStatus(transactionName, ((double) System.currentTimeMillis() - (double)begin) / 1000.0, true);
                         if (callBack != null) {
                             callBack.success(new String(content));
                         }
                     } else {
-                        LrTransStatusManager.addStatus(transactionName, ((double) System.currentTimeMillis() - begin) / 1000.0, false);
+                        LrTransStatusManager.addStatus(transactionName, ((double) System.currentTimeMillis() - (double)begin) / 1000.0, false);
                         if (callBack != null) {
                             callBack.error(new String(content), httpResponse.getStatusLine().getStatusCode());
                         }
@@ -99,7 +99,7 @@ public class HttpTransactionManager extends TransactionManager {
                 @Override
                 public void failed(Exception e) {
                     tracer.writeError("Send http request failed", e);
-                    LrTransStatusManager.addStatus(transactionName, ((double) System.currentTimeMillis() - begin) / 1000.0, false);
+                    LrTransStatusManager.addStatus(transactionName, ((double) System.currentTimeMillis() - (double)begin) / 1000.0, false);
                     if (callBack != null) {
                         callBack.failed(e);
                     }

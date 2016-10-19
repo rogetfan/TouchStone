@@ -1,6 +1,5 @@
 package org.elise.test.config;
 
-import java.awt.*;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -38,7 +37,7 @@ public class ConfigLoader {
 			throw  new LoadConfigException("");
 
 		} catch (IOException e) {
-			tracer.writeError("Read Propertities From File Failed",e);
+			tracer.writeError("Read Properties From File Failed",e);
 			throw  new LoadConfigException("");
 		}
 		for(Configuration config:configs)

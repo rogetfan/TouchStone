@@ -5,7 +5,6 @@ import org.apache.http.entity.BasicHttpEntity;
 import org.elise.test.exception.InvalidRequestException;
 import org.elise.test.exception.NullRequestException;
 import org.elise.test.framework.transaction.Transaction;
-
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -36,7 +35,7 @@ public class HttpTransaction extends Transaction {
         this.remotePath = remotePath;
         this.manager = manager;
         this.transactionName = transactionName;
-        this.intervalTimeStamp = 10000;
+        this.intervalTimeStamp = 1000;
         this.callback = null;
     }
 

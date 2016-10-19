@@ -1,13 +1,11 @@
 package org.elise.test.lr;
 
 import org.elise.test.config.ConfigLoader;
-import org.elise.test.config.Configuration;
 import org.elise.test.exception.LoadConfigException;
 import org.elise.test.framework.FrameworkConfig;
 import org.elise.test.framework.transaction.TransactionManager;
 import org.elise.test.framework.transaction.http.HttpTransactionManager;
 import org.elise.test.framework.user.UserContainer;
-import org.elise.test.framework.user.UserInfo;
 import org.elise.test.framework.user.VirtualUser;
 import org.elise.test.performance.http.HttpUser;
 import org.elise.test.performance.http.HttpUserInfo;

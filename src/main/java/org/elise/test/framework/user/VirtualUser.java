@@ -54,7 +54,8 @@ public abstract class VirtualUser<T extends UserInfo> implements Runnable {
             action();
             try {
                 Random random = new Random();
-                Thread.sleep((random.nextLong()+1L)%FrameworkConfig.getInstance().getMaxIntervalTimeStamp());
+                long timeSeed = random.nextLong()&Long.MAX_VALUE;
+                Thread.sleep(timeSeed % FrameworkConfig.getInstance().getMaxIntervalTimeStamp());
             } catch (InterruptedException e) {
                 tracer.writeError("Sleeping has been interrupted",e);
             }

@@ -4,5 +4,5 @@ import java.util.Properties;
 
 public interface Configuration 
 {
-    public void loadConfiguration(Properties prop);
+    void loadConfiguration(Properties prop);
 }

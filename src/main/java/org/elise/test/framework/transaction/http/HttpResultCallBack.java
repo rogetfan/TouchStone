@@ -5,20 +5,20 @@ package org.elise.test.framework.transaction.http;
  */
 public interface HttpResultCallBack {
     /**
-     * 请求发送成功返回2XX应答
+     * Send request successfully,and get response which contains 2XX
      * */
     public void success(String responseMessage);
     /**
-     * 请求发送成功但未返回2XX应答
-     * 例如返回404
+     * Send request successfully,but not get response which contains 2xx
+     * For example 404
      * */
     public void error(String responseMessage,Integer statusCode);
     /**
-     *HTTP请求发送失败，未到达对端主机
+     * The request which has been sent don't reach remote host.
      * */
     public void failed(Exception e);
     /**
-     *HTTP请求发送，未收到应答响应
+     *The request has been sent but no response returned
      * */
     public void unreachable();
 
