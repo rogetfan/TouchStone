@@ -9,7 +9,7 @@ public class Test {
 		Actions a  = new Actions();
 		try {
 			a.init();
-			a.action();
+			//a.action();
 			Thread.sleep(100*1000);
 			a.end();
 		} catch (Throwable e) {

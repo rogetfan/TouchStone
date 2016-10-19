@@ -18,12 +18,12 @@ public class LrTransHelper {
 			Throwable tempT = t;
 			while (tempT != null) {
 				sb.append(tempT.toString());
-				sb.append("/r/n");
+				sb.append("\r\n");
 				for (StackTraceElement e : tempT.getStackTrace()) {
 					sb.append(e.toString());
-					sb.append("/r/n");
+					sb.append("\r\n");
 				}
-				sb.append("/r/n");
+				sb.append("\r\n");
 				tempT = tempT.getCause();
 			}
 			System.err.println(sb.toString());

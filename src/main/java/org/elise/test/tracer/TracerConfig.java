@@ -24,9 +24,9 @@ public class TracerConfig implements Configuration {
 	}
 
 	public void loadConfiguration(Properties prop) {
-		console = TracerLevelEnum.parseFromInt(Integer.parseInt(prop.getProperty("consoleWriterLevel", "1")));
-		remote = TracerLevelEnum.parseFromInt(Integer.parseInt(prop.getProperty("remoteWriterLevel", "1")));
-		file = TracerLevelEnum.parseFromInt(Integer.parseInt(prop.getProperty("fileWriterLevel", "1")));
+		console = TracerLevelEnum.parseFromInt(Integer.parseInt(prop.getProperty("ConsoleWriterLevel", "1")));
+		remote = TracerLevelEnum.parseFromInt(Integer.parseInt(prop.getProperty("RemoteWriterLevel", "1")));
+		file = TracerLevelEnum.parseFromInt(Integer.parseInt(prop.getProperty("FileWriterLevel", "1")));
 
 	}
 
