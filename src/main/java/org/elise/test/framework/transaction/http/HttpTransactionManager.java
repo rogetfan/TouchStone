@@ -64,8 +64,7 @@ public class HttpTransactionManager extends TransactionManager {
     }
 
     private void sendHttpRequest(HttpEntityEnclosingRequestBase request, final String transactionName, final HttpResultCallBack callBack) {
-        final Object lock = new Object();
-        try {
+       // final Object lock = new Object();
             final long begin = System.currentTimeMillis();
             httpclient.execute(request, new FutureCallback<HttpResponse>() {
                 @Override
@@ -81,30 +80,24 @@ public class HttpTransactionManager extends TransactionManager {
                         e.printStackTrace();
                     }
                     if (httpResponse.getStatusLine().getStatusCode() >= 200 && httpResponse.getStatusLine().getStatusCode() < 300) {
-                        LrTransStatusManager.addStatus(transactionName, ((double) System.currentTimeMillis() - (double)begin) / 1000.0, true);
+                        LrTransStatusManager.addStatus(transactionName, ((double) System.currentTimeMillis() - (double) begin) / 1000.0, true);
                         if (callBack != null) {
                             callBack.success(new String(content));
                         }
                     } else {
-                        LrTransStatusManager.addStatus(transactionName, ((double) System.currentTimeMillis() - (double)begin) / 1000.0, false);
+                        LrTransStatusManager.addStatus(transactionName, ((double) System.currentTimeMillis() - (double) begin) / 1000.0, false);
                         if (callBack != null) {
                             callBack.error(new String(content), httpResponse.getStatusLine().getStatusCode());
                         }
-                    }
-                    synchronized (lock) {
-                        lock.notify();
                     }
                 }
 
                 @Override
                 public void failed(Exception e) {
                     tracer.writeError("Send http request failed", e);
-                    LrTransStatusManager.addStatus(transactionName, ((double) System.currentTimeMillis() - (double)begin) / 1000.0, false);
+                    LrTransStatusManager.addStatus(transactionName, ((double) System.currentTimeMillis() - (double) begin) / 1000.0, false);
                     if (callBack != null) {
                         callBack.failed(e);
-                    }
-                    synchronized (lock) {
-                        lock.notify();
                     }
                 }
 
@@ -113,21 +106,10 @@ public class HttpTransactionManager extends TransactionManager {
                     if (callBack != null) {
                         callBack.unreachable();
                     }
-                    synchronized (lock) {
-                        lock.notify();
-                    }
                 }
             });
-        } finally {
-            try {
-                synchronized (lock) {
-                    //synchronized this thread for 10s at most,but how could do if there is a timeout
-                    lock.wait(10000);
-                }
-            } catch (InterruptedException e) {
-                LrTransHelper.error_message("Http request is timeout");
-                tracer.writeError("interrupted synchronized", e);
-            }
-        }
+
     }
+
+
 }

@@ -26,7 +26,8 @@ public class HttpUser extends VirtualUser<HttpUserInfo> {
         HttpResultCallBack callback = new HttpResultCallBack() {
             @Override
             public void success(String responseMessage) {
-                System.out.println("Response length is " + responseMessage.length());
+                System.out.println(responseMessage);
+               // System.out.println("Response length is " + responseMessage.length());
             }
 
             @Override
@@ -50,11 +51,12 @@ public class HttpUser extends VirtualUser<HttpUserInfo> {
         trans1.setParameters("url", "z8PzLn5W7WrghaIw7M21wGIMRYl8R0Ufn_zaj8gQhC8JO08mZHLe_cjIyfY5UJ_cZKQSp-7tEJpCbDDlDD8CTnlb6Me8Vq8X36-xohnuALq");
         trans1.setTransactionCallBack(callback);
         trans1.setIntervalTimeStamp(200L);
-        HttpTransaction trans2 = manager.createHttpTransaction("POST", "http://192.168.50.225", 8009, "/cams/login.htm", action2);
-        //trans2.setParameters("url", "z8PzLn5W7WrghaIw7M21wGIMRYl8R0Ufn_zaj8gQhC8JO08mZHLe_cjIyfY5UJ_cZKQSp-7tEJpCbDDlDD8CTnlb6Me8Vq8X36-xohnuALq");
+        HttpTransaction trans2 = manager.createHttpTransaction("GET", "http://zhidao.baidu.com", 80, "/link", action2);
+        //HttpTransaction trans2 = manager.createHttpTransaction("POST", "http://192.168.50.225", 8009, "/cams/login.htm", action2);
+        trans2.setParameters("url", "z8PzLn5W7WrghaIw7M21wGIMRYl8R0Ufn_zaj8gQhC8JO08mZHLe_cjIyfY5UJ_cZKQSp-7tEJpCbDDlDD8CTnlb6Me8Vq8X36-xohnuALq");
         trans2.setTransactionCallBack(callback);
         trans2.setIntervalTimeStamp(200L);
-        trans2.setHttpContent("userName=passport_0&userPwd=passport_0&remember=1".getBytes());
+        //trans2.setHttpContent("userName=passport_0&userPwd=passport_0&remember=1".getBytes());
         trans1.setNextTransaction(null);
         trans2.setNextTransaction(trans1);
         try {
