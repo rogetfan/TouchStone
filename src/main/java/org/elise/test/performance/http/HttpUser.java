@@ -10,13 +10,14 @@ import org.elise.test.framework.user.VirtualUser;
 import org.elise.test.tracer.TracerConfig;
 
 import java.util.Properties;
+import java.util.UUID;
 
 /**
  * Created by huxuehan on 2016/10/19.
  */
 public class HttpUser extends VirtualUser<HttpUserInfo> {
-    private static final String action1="visit_baidu";
-    private static final String action2="visti_zhidao";
+    private static final String ACTION_1="visit_baidu";
+    private static final String ACTION_2="visti_zhidao";
     public HttpUser() {
         super();
     }
@@ -29,7 +30,7 @@ public class HttpUser extends VirtualUser<HttpUserInfo> {
             @Override
             public void success(String responseMessage) {
                 //System.out.println(responseMessage);
-                //System.out.println("Response length is " + responseMessage.length());
+                 System.out.println("Response length is " + responseMessage.length());
             }
 
             @Override
@@ -49,7 +50,7 @@ public class HttpUser extends VirtualUser<HttpUserInfo> {
             }
         };
         HttpTransactionManager manager = (HttpTransactionManager)this.getTransactionManager();
-        HttpTransaction trans1 = manager.createHttpTransaction("POST", "http://192.168.50.225", 8009, "/cams/login.htm", action1);
+        HttpTransaction trans1 = manager.createHttpTransaction("POST", "http://192.168.50.225", 8009, "/cams/login.htm", ACTION_1);
         //HttpTransaction trans1 = manager.createHttpTransaction("GET", "http://zhidao.baidu.com", 80, "/link", action1);
         //trans1.setParameters("url", "z8PzLn5W7WrghaIw7M21wGIMRYl8R0Ufn_zaj8gQhC8JO08mZHLe_cjIyfY5UJ_cZKQSp-7tEJpCbDDlDD8CTnlb6Me8Vq8X36-xohnuALq");
         trans1.setHttpContent("userName=passport_0&userPwd=passport_0&remember=1".getBytes());
@@ -57,7 +58,7 @@ public class HttpUser extends VirtualUser<HttpUserInfo> {
         trans1.setIntervalTimeStamp(200L);
         //HttpTransaction trans2 = manager.createHttpTransaction("GET", "http://zhidao.baidu.com", 80, "/link", action2);
         //trans2.setParameters("url", "z8PzLn5W7WrghaIw7M21wGIMRYl8R0Ufn_zaj8gQhC8JO08mZHLe_cjIyfY5UJ_cZKQSp-7tEJpCbDDlDD8CTnlb6Me8Vq8X36-xohnuALq");
-        HttpTransaction trans2 = manager.createHttpTransaction("POST", "http://192.168.50.225", 8009, "/cams/login.htm", action2);
+        HttpTransaction trans2 = manager.createHttpTransaction("POST", "http://192.168.50.225", 8009, "/cams/login.htm", ACTION_2);
         trans2.setTransactionCallBack(callback);
         trans2.setIntervalTimeStamp(200L);
         trans2.setHttpContent("userName=passport_0&userPwd=passport_0&remember=1".getBytes());
@@ -70,5 +71,10 @@ public class HttpUser extends VirtualUser<HttpUserInfo> {
         } catch (InvalidRequestException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public String getUserStamp() {
+        return UUID.randomUUID().toString();
     }
 }

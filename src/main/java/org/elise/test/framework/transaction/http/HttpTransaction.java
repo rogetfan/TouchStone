@@ -27,7 +27,9 @@ public class HttpTransaction extends Transaction {
     private long intervalTimeStamp;
     private byte[] httpContent;
     private HttpTransaction nextTransaction;
-
+    /**
+     * Method:GET,POST,PUT,DELETE
+     * */
     public HttpTransaction(String method, String domainName, Integer remotePort, String remotePath, String transactionName, HttpTransactionManager manager) {
         this.method = method;
         this.domainName = domainName;

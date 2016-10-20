@@ -7,6 +7,14 @@ public class LrTransHelper {
 
 	}
 
+	public static void startTransaction(String transactionName){
+		lr.start_transaction(transactionName);
+	}
+
+	public static void endTransaction(String transactionName,Boolean isSuccessful){
+		lr.end_transaction(transactionName,isSuccessful?lr.PASS:lr.FAIL);
+	}
+
 	public static void set_transaction(LrTransStatus status) 
 	{
 		lr.set_transaction(status.transactionName, status.duration, status.status);

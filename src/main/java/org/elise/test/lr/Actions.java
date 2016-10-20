@@ -23,21 +23,24 @@ public class Actions {
     Boolean isRunnable;
 
     public int init() {
+        //load configurations from file or others
         try {
             ConfigLoader.getInstance().loadProperties("setting.properties", FrameworkConfig.getInstance(), TracerConfig.getInstance());
         } catch (LoadConfigException e) {
             e.printStackTrace();
         }
+        //set the loop of "action()" endless
         isRunnable = true;
         container = new UserContainer(FrameworkConfig.getInstance().getVirtualUserCount());
         VirtualUser[] users = new HttpUser[FrameworkConfig.getInstance().getVirtualUserCount()];
         TransactionManager manager = new HttpTransactionManager();
-        for (int count =0;count<users.length;count++) {
+        for (int count = 0; count < users.length; count++) {
             users[count] = new HttpUser();
             users[count].setUserInfo(new HttpUserInfo());
             users[count].setTransactionManager(manager);
         }
         container.setUsers(users);
+        //start users
         try {
             container.start();
         } catch (Throwable throwable) {
@@ -60,7 +63,7 @@ public class Actions {
             }
         }
         return 0;
-    }// end of transaction
+    }
 
     public int end() throws Throwable {
         isRunnable = false;
