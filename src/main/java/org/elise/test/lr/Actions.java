@@ -20,6 +20,7 @@ import org.elise.test.tracer.TracerConfig;
 
 public class Actions {
     UserContainer container;
+    Boolean isRunnable;
 
     public int init() {
         try {
@@ -27,6 +28,7 @@ public class Actions {
         } catch (LoadConfigException e) {
             e.printStackTrace();
         }
+        isRunnable = true;
         container = new UserContainer(FrameworkConfig.getInstance().getVirtualUserCount());
         VirtualUser[] users = new HttpUser[FrameworkConfig.getInstance().getVirtualUserCount()];
         TransactionManager manager = new HttpTransactionManager();
@@ -46,7 +48,7 @@ public class Actions {
     }
 
     public int action() throws Throwable {
-        while (true) {
+        while (isRunnable) {
             try {
                 LrTransStatus status = LrTransStatusManager.takeTransaction();
                 if (status == null) {
@@ -57,9 +59,11 @@ public class Actions {
                 LrTransHelper.error_message(t);
             }
         }
+        return 0;
     }// end of transaction
 
     public int end() throws Throwable {
+        isRunnable = false;
         container.stop();
         return 0;
     }

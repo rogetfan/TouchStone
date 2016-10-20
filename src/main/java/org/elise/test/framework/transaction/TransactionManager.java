@@ -6,5 +6,4 @@ package org.elise.test.framework.transaction;
 public abstract class TransactionManager {
       public abstract void start() throws Throwable;
       public abstract void stop() throws Throwable;
-     // public abstract Transaction createHttpTransaction(Object ... args);
 }

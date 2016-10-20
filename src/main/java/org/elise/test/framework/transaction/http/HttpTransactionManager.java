@@ -11,7 +11,6 @@ import org.apache.http.util.EntityUtils;
 import org.elise.test.exception.InvalidRequestException;
 import org.elise.test.exception.NullRequestException;
 import org.elise.test.framework.transaction.TransactionManager;
-import org.elise.test.lr.LrTransHelper;
 import org.elise.test.lr.LrTransStatusManager;
 import org.elise.test.tracer.Tracer;
 
@@ -64,7 +63,6 @@ public class HttpTransactionManager extends TransactionManager {
     }
 
     private void sendHttpRequest(HttpEntityEnclosingRequestBase request, final String transactionName, final HttpResultCallBack callBack) {
-       // final Object lock = new Object();
             final long begin = System.currentTimeMillis();
             httpclient.execute(request, new FutureCallback<HttpResponse>() {
                 @Override
@@ -94,7 +92,6 @@ public class HttpTransactionManager extends TransactionManager {
 
                 @Override
                 public void failed(Exception e) {
-                    tracer.writeError("Send http request failed", e);
                     LrTransStatusManager.addStatus(transactionName, ((double) System.currentTimeMillis() - (double) begin) / 1000.0, false);
                     if (callBack != null) {
                         callBack.failed(e);
@@ -108,8 +105,5 @@ public class HttpTransactionManager extends TransactionManager {
                     }
                 }
             });
-
     }
-
-
 }

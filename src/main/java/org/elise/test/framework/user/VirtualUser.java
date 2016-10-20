@@ -15,8 +15,7 @@ public abstract class VirtualUser<T extends UserInfo> implements Runnable {
     private TransactionManager manager;
     private Tracer tracer = Tracer.getInstance(this.getClass());
 
-    public VirtualUser()
-    {
+    public VirtualUser() {
 
     }
 
@@ -24,15 +23,15 @@ public abstract class VirtualUser<T extends UserInfo> implements Runnable {
         this.userInfo = userInfo;
     }
 
-    public T getUserInfo(){
+    public T getUserInfo() {
         return userInfo;
     }
 
-    public void setTransactionManager(TransactionManager manager){
+    public void setTransactionManager(TransactionManager manager) {
         this.manager = manager;
     }
 
-    public TransactionManager getTransactionManager(){
+    public TransactionManager getTransactionManager() {
         return manager;
     }
 
@@ -50,15 +49,16 @@ public abstract class VirtualUser<T extends UserInfo> implements Runnable {
 
     @Override
     public void run() {
-        while(isRunnable){
-            action();
+        while (isRunnable) {
             try {
                 Random random = new Random();
-                long timeSeed = random.nextLong()&Long.MAX_VALUE;
+                long timeSeed = random.nextLong() & Long.MAX_VALUE;
+                System.out.println(timeSeed % FrameworkConfig.getInstance().getMaxIntervalTimeStamp());
                 Thread.sleep(timeSeed % FrameworkConfig.getInstance().getMaxIntervalTimeStamp());
             } catch (InterruptedException e) {
-                tracer.writeError("Sleeping has been interrupted",e);
+                tracer.writeError("Sleeping has been interrupted", e);
             }
+            action();
         }
     }
 }
