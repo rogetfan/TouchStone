@@ -29,6 +29,7 @@ public class Actions {
         } catch (LoadConfigException e) {
             e.printStackTrace();
         }
+        LrTransHelper.setDisable();
         //set the loop of "action()" endless
         isRunnable = true;
         container = new UserContainer(FrameworkConfig.getInstance().getVirtualUserCount());

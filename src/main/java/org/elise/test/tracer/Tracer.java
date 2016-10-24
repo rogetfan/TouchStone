@@ -1,12 +1,29 @@
 package org.elise.test.tracer;
 
-public class Tracer 
+import org.elise.test.tracer.writer.ConsoleWriter;
+import org.elise.test.tracer.writer.FileWriter;
+import org.elise.test.tracer.writer.RemoteWriter;
+
+public class Tracer
 {
 	private String className;
-	
+
+    private static ConsoleWriter  consoleWriter = null;
+    private static FileWriter fileWriter = null;
+    private static RemoteWriter remoteWriter = null;
+
     private Tracer(Class<?> clazz)
     {
     	this.className = clazz.getSimpleName();
+        if(consoleWriter == null) {
+            consoleWriter = new ConsoleWriter();
+        }
+        if(fileWriter == null){
+            fileWriter = new FileWriter();
+        }
+        if(remoteWriter == null){
+            remoteWriter = new RemoteWriter();
+        }
     }
     
     public static Tracer getInstance(Class<?> clazz)
@@ -35,37 +52,42 @@ public class Tracer
         return TracerConfig.getInstance().getConsoleLevel().compare(TracerLevelEnum.SPECIAL);
     }
     private void writeTracerObject(TracerObject log) {
+        if(TracerConfig.getInstance().getConsoleLevel().compare(log.getLogLevel())){
+            consoleWriter.write(log);
+        }
+        if(TracerConfig.getInstance().getFileLevel().compare(log.getLogLevel())){
 
+        }
+        if(TracerConfig.getInstance().getRemoteLevel().compare(log.getLogLevel())){
+
+        }
     }
     public void writeInfo(String message) {
         TracerObject object = new TracerObject(System.currentTimeMillis(),className,Thread.currentThread().getName(),TracerLevelEnum.INFO,null,message);
         writeTracerObject(object);
     }
     public void writeWarn(String message) {
-
-    }
-    public void writeWarn(String message,Exception e){
-
+        TracerObject object = new TracerObject(System.currentTimeMillis(),className,Thread.currentThread().getName(),TracerLevelEnum.WARN,null,message);
+        writeTracerObject(object);
     }
     public void writeWarn(String message,Throwable t) {
-
+        TracerObject object = new TracerObject(System.currentTimeMillis(),className,Thread.currentThread().getName(),TracerLevelEnum.WARN,t,message);
+        writeTracerObject(object);
     }
     public void writeError(String message) {
-
-    }
-    public void writeError(String message,Exception e){
-
+        TracerObject object = new TracerObject(System.currentTimeMillis(),className,Thread.currentThread().getName(),TracerLevelEnum.ERROR,null,message);
+        writeTracerObject(object);
     }
     public void writeError(String message,Throwable t) {
-
+        TracerObject object = new TracerObject(System.currentTimeMillis(),className,Thread.currentThread().getName(),TracerLevelEnum.ERROR,t,message);
+        writeTracerObject(object);
     }
     public void writeSpecial(String message) {
-
-    }
-    public void writeSpecial(String message,Exception e){
-
+        TracerObject object = new TracerObject(System.currentTimeMillis(),className,Thread.currentThread().getName(),TracerLevelEnum.SPECIAL,null,message);
+        writeTracerObject(object);
     }
     public void writeSpecial(String message,Throwable t){
-
+        TracerObject object = new TracerObject(System.currentTimeMillis(),className,Thread.currentThread().getName(),TracerLevelEnum.SPECIAL,t,message);
+        writeTracerObject(object);
     }
 }

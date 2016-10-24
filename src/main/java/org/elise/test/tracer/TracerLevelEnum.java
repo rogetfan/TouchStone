@@ -3,7 +3,7 @@ package org.elise.test.tracer;
 import java.util.HashMap;
 
 public enum TracerLevelEnum {
-	INFO("INFO", 1), WARN("WARN", 2), ERROR("ERROR", 3), SPECIAL("SPECIAL", 4);
+	INFO("INFO", 1), WARN("WARN", 2), ERROR("ERROR", 3), SPECIAL("SPECIAL", 4),CLOSE("CLOSE",5);
 
 	private String levelName;
 	private Integer levelValue;
@@ -31,12 +31,7 @@ public enum TracerLevelEnum {
 	 * */
 	public boolean compare(TracerLevelEnum level)
 	{
-        if(this.getLevelVaule() >= level.getLevelVaule()) {
-           return true;
-		}
-		else {
-           return false;
-		}
+		return this.getLevelVaule() > level.getLevelVaule()?false:true;
 	}
 
 	public String getLevelName() {
@@ -46,4 +41,11 @@ public enum TracerLevelEnum {
 	public Integer getLevelVaule() {
 		return levelValue;
 	}
+
+//	public static void main(String args[]){
+//		System.out.println(TracerLevelEnum.INFO.compare(TracerLevelEnum.INFO));
+//		System.out.println(TracerLevelEnum.INFO.compare(TracerLevelEnum.CLOSE));
+//		System.out.println(TracerLevelEnum.CLOSE.compare(TracerLevelEnum.SPECIAL));
+//		System.out.println(TracerLevelEnum.ERROR.compare(TracerLevelEnum.SPECIAL));
+//	}
 }

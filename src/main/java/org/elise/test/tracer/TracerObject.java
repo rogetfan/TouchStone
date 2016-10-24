@@ -21,6 +21,10 @@ public class TracerObject {
 		this.message = message;
 	}
 
+	public TracerLevelEnum getLogLevel(){
+		return logLevel;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();

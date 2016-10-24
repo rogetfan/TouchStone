@@ -6,6 +6,7 @@ import org.elise.test.lr.LrTransHelper;
 import org.elise.test.tracer.Tracer;
 
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by huxuehan on 2016/10/18.
@@ -36,14 +37,19 @@ public abstract class VirtualUser<T extends UserInfo> implements Runnable {
         return manager;
     }
 
+    // interface to judge if VirtualUser is runnable
+    public boolean isRunnable() {
+        return isRunnable;
+    }
+
     void start() throws Throwable {
         LrTransHelper.startTransaction("virtual_user_start");
         isRunnable = true;
         try {
             manager.start();
-            LrTransHelper.endTransaction("virtual_user_start",true);
-        }catch(Throwable t){
-            LrTransHelper.endTransaction("virtual_user_start",false);
+            LrTransHelper.endTransaction("virtual_user_start", true);
+        } catch (Throwable t) {
+            LrTransHelper.endTransaction("virtual_user_start", false);
             throw t;
         }
     }
@@ -53,21 +59,23 @@ public abstract class VirtualUser<T extends UserInfo> implements Runnable {
         isRunnable = false;
         try {
             manager.stop();
-            LrTransHelper.endTransaction("virtual_user_end",true);
-        }catch(Throwable t){
-            LrTransHelper.endTransaction("virtual_user_end",true);
+            LrTransHelper.endTransaction("virtual_user_end", true);
+        } catch (Throwable t) {
+            LrTransHelper.endTransaction("virtual_user_end", false);
             throw t;
         }
     }
+
     // implement what you want to do here
     public abstract void action();
+
     // generate single symbol for VirtualUser
     public abstract String getUserStamp();
 
 
-
     @Override
     public void run() {
+        AtomicInteger counter = new AtomicInteger(0);
         while (isRunnable) {
             //Sleeping for a while before run action()
             try {
@@ -77,7 +85,13 @@ public abstract class VirtualUser<T extends UserInfo> implements Runnable {
             } catch (InterruptedException e) {
                 tracer.writeError("Sleeping has been interrupted", e);
             }
-            action();
+            try {
+                action();
+            } catch (Throwable t) {
+                tracer.writeError("Virtual User face an exception", t);
+            } finally {
+                isRunnable = false;
+            }
         }
     }
 }

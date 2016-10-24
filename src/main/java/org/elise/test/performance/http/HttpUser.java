@@ -30,7 +30,7 @@ public class HttpUser extends VirtualUser<HttpUserInfo> {
             @Override
             public void success(String responseMessage) {
                 //System.out.println(responseMessage);
-                 System.out.println("Response length is " + responseMessage.length());
+                System.out.println("Response length is " + responseMessage.length());
             }
 
             @Override
@@ -62,6 +62,7 @@ public class HttpUser extends VirtualUser<HttpUserInfo> {
         trans2.setTransactionCallBack(callback);
         trans2.setIntervalTimeStamp(200L);
         trans2.setHttpContent("userName=passport_0&userPwd=passport_0&remember=1".getBytes());
+
         trans1.setNextTransaction(null);
         trans2.setNextTransaction(trans1);
         try {
