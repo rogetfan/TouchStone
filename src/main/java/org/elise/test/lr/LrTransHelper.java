@@ -1,8 +1,10 @@
 package org.elise.test.lr;
 import lrapi.lr;
+import org.elise.test.tracer.Tracer;
 
 public class LrTransHelper {
 
+    private static final Tracer tracer = Tracer.getInstance(LrTransHelper.class);
 	private static boolean isEnable = false;
 
 	private LrTransHelper() {
@@ -38,22 +40,10 @@ public class LrTransHelper {
 	public static void error_message(Throwable t) {
 		if(isEnable) {
 			if (t != null) {
-				StringBuilder sb = new StringBuilder();
-				Throwable tempT = t;
-				while (tempT != null) {
-					sb.append(tempT.toString());
-					sb.append("\r\n");
-					for (StackTraceElement e : tempT.getStackTrace()) {
-						sb.append(e.toString());
-						sb.append("\r\n");
-					}
-					sb.append("\r\n");
-					tempT = tempT.getCause();
-				}
-				System.err.println(sb.toString());
-				lr.error_message(sb.toString());
+				tracer.writeError("Error take place when write error message",t);
+				lr.error_message("Error take place when write error message");
 			} else {
-				System.err.println("Error Stack Is Null");
+				tracer.writeInfo("Error Stack Is Null");
 				lr.error_message(null);
 			}
 		}
@@ -62,10 +52,10 @@ public class LrTransHelper {
 	public static void error_message(String message) {
 		if(isEnable) {
 			if (message != null && !message.equals("")) {
-				System.err.println(message);
+				tracer.writeError(message);
 				lr.error_message(message);
 			} else {
-				System.err.println("Error Message Is Null");
+				tracer.writeInfo("Error Message Is Null");
 				lr.error_message(null);
 			}
 		}

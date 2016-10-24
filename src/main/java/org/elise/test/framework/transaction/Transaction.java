@@ -7,8 +7,11 @@ import org.elise.test.exception.NullRequestException;
  * Created by huxuehan on 2016/10/18.
  */
 public abstract class Transaction {
-    public abstract void setNextTransaction(Transaction nextTransaction);
-    public abstract void sendRequest() throws NullRequestException, InvalidRequestException;
-    public abstract long getIntervalTimeStamp();
-    public abstract Transaction getNextTransaction();
+    public abstract void sendRequest() throws Throwable;
+
+    public abstract long getIntervalTimeStamp() throws Throwable;
+
+    public abstract Transaction getNextTransaction() throws Throwable;
+
+    public abstract void setNextTransaction(Transaction nextTransaction) throws Throwable;
 }

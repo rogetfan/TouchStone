@@ -21,20 +21,20 @@ public abstract class VirtualUser<T extends UserInfo> implements Runnable {
 
     }
 
-    public void setUserInfo(T userInfo) {
-        this.userInfo = userInfo;
-    }
-
     public T getUserInfo() {
         return userInfo;
     }
 
-    public void setTransactionManager(TransactionManager manager) {
-        this.manager = manager;
+    public void setUserInfo(T userInfo) {
+        this.userInfo = userInfo;
     }
 
     public TransactionManager getTransactionManager() {
         return manager;
+    }
+
+    public void setTransactionManager(TransactionManager manager) {
+        this.manager = manager;
     }
 
     // interface to judge if VirtualUser is runnable
@@ -67,7 +67,7 @@ public abstract class VirtualUser<T extends UserInfo> implements Runnable {
     }
 
     // implement what you want to do here
-    public abstract void action();
+    public abstract void action() throws Throwable;
 
     // generate single symbol for VirtualUser
     public abstract String getUserStamp();
@@ -75,7 +75,6 @@ public abstract class VirtualUser<T extends UserInfo> implements Runnable {
 
     @Override
     public void run() {
-        AtomicInteger counter = new AtomicInteger(0);
         while (isRunnable) {
             //Sleeping for a while before run action()
             try {
@@ -89,7 +88,6 @@ public abstract class VirtualUser<T extends UserInfo> implements Runnable {
                 action();
             } catch (Throwable t) {
                 tracer.writeError("Virtual User face an exception", t);
-            } finally {
                 isRunnable = false;
             }
         }

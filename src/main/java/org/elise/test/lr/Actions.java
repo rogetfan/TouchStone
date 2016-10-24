@@ -9,6 +9,7 @@ import org.elise.test.framework.user.UserContainer;
 import org.elise.test.framework.user.VirtualUser;
 import org.elise.test.performance.http.HttpUser;
 import org.elise.test.performance.http.HttpUserInfo;
+import org.elise.test.tracer.Tracer;
 import org.elise.test.tracer.TracerConfig;
 
 /**
@@ -21,7 +22,7 @@ import org.elise.test.tracer.TracerConfig;
 public class Actions {
     UserContainer container;
     Boolean isRunnable;
-
+    private Tracer tracer = Tracer.getInstance(Actions.class);
     public int init() {
         //load configurations from file or others
         try {
@@ -45,8 +46,7 @@ public class Actions {
         try {
             container.start();
         } catch (Throwable throwable) {
-            System.err.println("script start failed");
-            throwable.printStackTrace();
+            tracer.writeSpecial("script start failed",throwable);
         }
         return 0;
     }

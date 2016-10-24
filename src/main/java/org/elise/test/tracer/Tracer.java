@@ -6,14 +6,12 @@ import org.elise.test.tracer.writer.RemoteWriter;
 
 public class Tracer
 {
-	private String className;
-
     private static ConsoleWriter  consoleWriter = null;
     private static FileWriter fileWriter = null;
     private static RemoteWriter remoteWriter = null;
+	private String className;
 
-    private Tracer(Class<?> clazz)
-    {
+    private Tracer(Class<?> clazz) {
     	this.className = clazz.getSimpleName();
         if(consoleWriter == null) {
             consoleWriter = new ConsoleWriter();
@@ -26,29 +24,24 @@ public class Tracer
         }
     }
     
-    public static Tracer getInstance(Class<?> clazz)
-    {
+    public static Tracer getInstance(Class<?> clazz) {
     	return new Tracer(clazz);
     }
 	
     // Only compared with console level
-    public boolean isInfoAvailable()
-    {
+    public boolean isInfoAvailable() {
        return TracerConfig.getInstance().getConsoleLevel().compare(TracerLevelEnum.INFO);
     }
     // Only compared with console level
-    public boolean isWarnAvailable()
-    {
+    public boolean isWarnAvailable() {
     	return TracerConfig.getInstance().getConsoleLevel().compare(TracerLevelEnum.WARN);
     }
     // Only compared with console level
-    public boolean isErrorAvailable()
-    {
+    public boolean isErrorAvailable() {
     	return TracerConfig.getInstance().getConsoleLevel().compare(TracerLevelEnum.ERROR);
     }
     // Only compared with console level
-    public boolean isSpecialAvailable()
-    {
+    public boolean isSpecialAvailable() {
         return TracerConfig.getInstance().getConsoleLevel().compare(TracerLevelEnum.SPECIAL);
     }
     private void writeTracerObject(TracerObject log) {

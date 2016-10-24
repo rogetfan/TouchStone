@@ -64,6 +64,7 @@ public class HttpTransactionManager extends TransactionManager {
 
     private void sendHttpRequest(HttpEntityEnclosingRequestBase request, final String transactionName, final HttpResultCallBack callBack) {
             final long begin = System.currentTimeMillis();
+            tracer.writeInfo(request.toString());
             httpclient.execute(request, new FutureCallback<HttpResponse>() {
                 @Override
                 public void completed(HttpResponse httpResponse) {

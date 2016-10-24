@@ -7,6 +7,7 @@ import org.elise.test.framework.transaction.http.HttpResultCallBack;
 import org.elise.test.framework.transaction.http.HttpTransaction;
 import org.elise.test.framework.transaction.http.HttpTransactionManager;
 import org.elise.test.framework.user.VirtualUser;
+import org.elise.test.tracer.Tracer;
 import org.elise.test.tracer.TracerConfig;
 
 import java.util.Properties;
@@ -18,25 +19,26 @@ import java.util.UUID;
 public class HttpUser extends VirtualUser<HttpUserInfo> {
     private static final String ACTION_1="visit_baidu";
     private static final String ACTION_2="visti_zhidao";
+    private static Tracer tracer = Tracer.getInstance(HttpUser.class);
     public HttpUser() {
         super();
     }
 
     @Override
-    public void action() {
+    public void action() throws Throwable {
 
         HttpResultCallBack callback = new HttpResultCallBack() {
 
             @Override
             public void success(String responseMessage) {
-                //System.out.println(responseMessage);
-                System.out.println("Response length is " + responseMessage.length());
+                //tracer.writeInfo(responseMessage);
+                tracer.writeInfo("Response length is " + responseMessage.length());
             }
 
             @Override
             public void error(String responseMessage, Integer statusCode) {
-                System.out.println("Response length is " + responseMessage.length());
-                System.out.println("Response status code is " + statusCode);
+                tracer.writeInfo("Response length is " + responseMessage.length());
+                tracer.writeInfo("Response status code is " + statusCode);
             }
 
             @Override
@@ -62,16 +64,9 @@ public class HttpUser extends VirtualUser<HttpUserInfo> {
         trans2.setTransactionCallBack(callback);
         trans2.setIntervalTimeStamp(200L);
         trans2.setHttpContent("userName=passport_0&userPwd=passport_0&remember=1".getBytes());
-
         trans1.setNextTransaction(null);
         trans2.setNextTransaction(trans1);
-        try {
-            trans2.sendRequest();
-        } catch (NullRequestException e) {
-            e.printStackTrace();
-        } catch (InvalidRequestException e) {
-            e.printStackTrace();
-        }
+        trans2.sendRequest();
     }
 
     @Override

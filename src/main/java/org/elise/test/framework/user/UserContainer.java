@@ -1,13 +1,15 @@
 package org.elise.test.framework.user;
 
+import org.elise.test.tracer.Tracer;
+
 /**
  * Created by huxuehan on 2016/10/19.
  */
 public class UserContainer {
 
+    private static final Tracer tracer = Tracer.getInstance(UserContainer.class);
     private Integer userCount;
     private VirtualUser[] users;
-
     public UserContainer(Integer userCount) {
         this.userCount = userCount;
     }
@@ -24,6 +26,7 @@ public class UserContainer {
             threads[count].setName("VirtualUser-" + count);
             threads[count].setDaemon(true);
             threads[count].start();
+            tracer.writeSpecial("VirtualUser-" + count+" start successfully");
         }
     }
 
