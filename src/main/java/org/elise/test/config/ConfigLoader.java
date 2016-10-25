@@ -42,16 +42,6 @@ public class ConfigLoader {
              config.loadConfiguration(prop);
 		tracer.writeSpecial("Load Configurations Successful");
 	}
-//	public static void main(String args[])
-//	{
-//		TracerConfig.getInstance().loadConfiguration(new Properties());
-//		FrameworkConfig.getInstance().loadConfiguration(new Properties());
-//		System.out.println(TracerConfig.getInstance().getConsoleLevel());
-//		System.out.println(TracerConfig.getInstance().getFileLevel());
-//		System.out.println(TracerConfig.getInstance().getRemoteLevel());
-//		System.out.println(FrameworkConfig.getInstance().getMaxIntervalTimeStamp());
-//		System.out.println(FrameworkConfig.getInstance().getVirtualUserCount());
-//	}
 }
 
 
