@@ -9,7 +9,7 @@ public enum TracerLevelEnum {
 
     static {
         for (TracerLevelEnum emun : TracerLevelEnum.values()) {
-            MAP.put(emun.getLevelVaule(), emun);
+            MAP.put(emun.getLevelValue(), emun);
         }
     }
 
@@ -32,21 +32,14 @@ public enum TracerLevelEnum {
      * @return Boolean
      */
     public boolean compare(TracerLevelEnum level) {
-        return this.getLevelVaule() > level.getLevelVaule() ? false : true;
+        return this.getLevelValue() > level.getLevelValue() ? false : true;
     }
 
     public String getLevelName() {
         return levelName;
     }
 
-    public Integer getLevelVaule() {
+    public Integer getLevelValue() {
         return levelValue;
     }
-
-//	public static void main(String args[]){
-//		System.out.println(TracerLevelEnum.INFO.compare(TracerLevelEnum.INFO));
-//		System.out.println(TracerLevelEnum.INFO.compare(TracerLevelEnum.CLOSE));
-//		System.out.println(TracerLevelEnum.CLOSE.compare(TracerLevelEnum.SPECIAL));
-//		System.out.println(TracerLevelEnum.ERROR.compare(TracerLevelEnum.SPECIAL));
-//	}
 }
