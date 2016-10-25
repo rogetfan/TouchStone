@@ -1,16 +1,11 @@
 package org.elise.test.performance.http;
 
-import org.elise.test.exception.InvalidRequestException;
-import org.elise.test.exception.NullRequestException;
-import org.elise.test.framework.transaction.TransactionManager;
 import org.elise.test.framework.transaction.http.HttpResultCallBack;
 import org.elise.test.framework.transaction.http.HttpTransaction;
 import org.elise.test.framework.transaction.http.HttpTransactionManager;
 import org.elise.test.framework.user.VirtualUser;
 import org.elise.test.tracer.Tracer;
-import org.elise.test.tracer.TracerConfig;
 
-import java.util.Properties;
 import java.util.UUID;
 
 /**

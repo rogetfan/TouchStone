@@ -8,9 +8,7 @@ import java.io.InputStream;
 import java.util.Properties;
 
 import org.elise.test.exception.LoadConfigException;
-import org.elise.test.framework.FrameworkConfig;
 import org.elise.test.tracer.Tracer;
-import org.elise.test.tracer.TracerConfig;
 
 public class ConfigLoader {
 	private static ConfigLoader loader;

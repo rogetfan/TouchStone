@@ -5,11 +5,10 @@ import org.elise.test.config.Configuration;
 
 public class TracerConfig implements Configuration {
 
+	private static TracerConfig config;
 	private TracerLevelEnum console;
 	private TracerLevelEnum remote;
 	private TracerLevelEnum file;
-
-	private static TracerConfig config;
 
 	private TracerConfig() {
 
@@ -19,7 +18,6 @@ public class TracerConfig implements Configuration {
 		if (config == null) {
 			config = new TracerConfig();
 		}
-
 		return config;
 	}
 

@@ -1,7 +1,5 @@
 package org.elise.test.framework.transaction;
 
-import org.elise.test.exception.InvalidRequestException;
-import org.elise.test.exception.NullRequestException;
 
 /**
  * Created by huxuehan on 2016/10/18.

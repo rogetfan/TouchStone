@@ -1,7 +1,6 @@
 package org.elise.test.framework.transaction.http.methods;
 
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
-
 import java.net.URI;
 
 /**

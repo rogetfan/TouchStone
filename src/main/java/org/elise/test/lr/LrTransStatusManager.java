@@ -7,6 +7,7 @@ public class LrTransStatusManager {
 	private static final LinkedBlockingQueue<LrTransStatus> CONTAINER = new LinkedBlockingQueue<LrTransStatus>();
 	
 	public static LrTransStatus takeTransaction() throws InterruptedException {
+		//Get LrTransaction at once if object is not null,otherwise wait for 1 second at most.
 		return CONTAINER.poll(1000, TimeUnit.MILLISECONDS);
 	}
 

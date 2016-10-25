@@ -6,7 +6,6 @@ import org.elise.test.lr.LrTransHelper;
 import org.elise.test.tracer.Tracer;
 
 import java.util.Random;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by huxuehan on 2016/10/18.

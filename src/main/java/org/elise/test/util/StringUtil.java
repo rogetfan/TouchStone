@@ -2,7 +2,7 @@ package org.elise.test.util;
 
 public class StringUtil {
 	 
-	public static final String EmptyString = "";
+	public static final String EMPTYSTRING = "";
 	public static final String ENDLINE = "\r\n";
 	public static final String TAB = "        ";
 	public static final String SHARP = "#";
@@ -19,7 +19,7 @@ public class StringUtil {
 	
 	public static String getThreadName(Thread t) {
 		if (t == null)
-			return EmptyString;
+			return EMPTYSTRING;
 
 		if (t.getName().length() > 64)
 			return t.getName().substring(0, 63);
