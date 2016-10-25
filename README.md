@@ -2,8 +2,8 @@
 Performance Test Framework For LoadRunner
 
 ## Module
-* Configuration (Customize)
-* Exception
+* Configuration
+* Exception (Customize)
 * Framework
 * LoadRunner API (Customize)
 * Performance (test code)
