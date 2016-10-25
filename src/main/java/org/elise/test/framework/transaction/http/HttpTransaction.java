@@ -1,10 +1,15 @@
 package org.elise.test.framework.transaction.http;
 
-import org.apache.http.client.methods.*;
+import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.BasicHttpEntity;
 import org.elise.test.exception.InvalidRequestException;
 import org.elise.test.exception.NullRequestException;
 import org.elise.test.framework.transaction.Transaction;
+import org.elise.test.framework.transaction.http.methods.HttpDelete;
+import org.elise.test.framework.transaction.http.methods.HttpGet;
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -53,17 +58,8 @@ public class HttpTransaction extends Transaction {
         parameters.put(key, value);
     }
 
-    public void setIntervalTimeStamp(long intervalTimeStamp) {
-        this.intervalTimeStamp = intervalTimeStamp;
-    }
-
     public void setHttpContent(byte[] httpContent) {
         this.httpContent = httpContent;
-    }
-
-    @Override
-    public void setNextTransaction(Transaction nextTransaction) {
-        this.nextTransaction = (HttpTransaction) nextTransaction;
     }
 
     @Override
@@ -76,8 +72,17 @@ public class HttpTransaction extends Transaction {
         return nextTransaction;
     }
 
+    @Override
+    public void setNextTransaction(Transaction nextTransaction) {
+        this.nextTransaction = (HttpTransaction) nextTransaction;
+    }
+
     public long getIntervalTimeStamp() {
         return intervalTimeStamp;
+    }
+
+    public void setIntervalTimeStamp(long intervalTimeStamp) {
+        this.intervalTimeStamp = intervalTimeStamp;
     }
 
     protected HttpResultCallBack getCallback() {
@@ -115,7 +120,7 @@ public class HttpTransaction extends Transaction {
         //build Http request according to it's method
         switch (method) {
             case "GET":
-                request = new org.elise.test.framework.transaction.http.methods.HttpGet(uri);
+                request = new HttpGet(uri);
                 break;
             case "POST":
                 request = new HttpPost(uri);
@@ -124,7 +129,7 @@ public class HttpTransaction extends Transaction {
                 request = new HttpPut(uri);
                 break;
             case "DELETE":
-                request = new org.elise.test.framework.transaction.http.methods.HttpDelete(uri);
+                request = new HttpDelete(uri);
                 break;
             default:
                 throw new NullRequestException("Unsupported method");

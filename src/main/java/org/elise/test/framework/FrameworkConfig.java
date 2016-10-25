@@ -14,8 +14,7 @@ public class FrameworkConfig implements Configuration
 	}
 	
     public static FrameworkConfig getInstance() {
-         if(config == null)
-         {
+         if(config == null) {
         	 config = new FrameworkConfig();
          }
          return config;
