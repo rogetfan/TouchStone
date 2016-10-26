@@ -11,3 +11,6 @@ Performance Test Framework For LoadRunner
 
 ## Now Support
 * HTTP
+
+## Issues
+* Processes which created by LoadRunner can't be stopped by Analysis,users has to kill each process manually
