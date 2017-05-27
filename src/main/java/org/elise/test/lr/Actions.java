@@ -7,8 +7,8 @@ import org.elise.test.framework.transaction.TransactionManager;
 import org.elise.test.framework.transaction.http.HttpTransactionManager;
 import org.elise.test.framework.user.UserContainer;
 import org.elise.test.framework.user.VirtualUser;
-import org.elise.test.performance.http.HttpUser;
-import org.elise.test.performance.http.HttpUserInfo;
+import org.elise.test.script.http.HttpUser;
+import org.elise.test.script.http.HttpUserInfo;
 import org.elise.test.tracer.Tracer;
 import org.elise.test.tracer.TracerConfig;
 

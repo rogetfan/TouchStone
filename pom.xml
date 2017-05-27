@@ -9,8 +9,8 @@
 	<name>PerformaceTest</name>
 	<url>http://maven.apache.org</url>
 	<properties>
-		<maven.compiler.source>1.7</maven.compiler.source>
-		<maven.compiler.target>1.7</maven.compiler.target>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 	<dependencies>
@@ -26,8 +26,7 @@
 			<version>4.1.1</version>
 		</dependency>
 		<dependency>
-			<!-- mvn install:install-file -DgroupId=com.loadrunner -DartifactId=lrapi 
-				-Dversion=1.0 -Dpackaging=jar -Dfile=api.jar -->
+			<!-- mvn install:install-file -DgroupId=com.loadrunner -DartifactId=lrapi -Dversion=1.0 -Dpackaging=jar -Dfile=api.jar -->
 			<groupId>com.loadrunner</groupId>
 			<artifactId>lrapi</artifactId>
 			<version>1.0</version>
@@ -45,7 +44,7 @@
 					</descriptorRefs>
 					<archive>
 						<manifest>
-							<mainClass>org.elise.test.performance.http.Test</mainClass>
+							<mainClass>Test</mainClass>
 						</manifest>
 					</archive>
 				</configuration>

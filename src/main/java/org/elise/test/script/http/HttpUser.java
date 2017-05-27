@@ -1,4 +1,4 @@
-package org.elise.test.performance.http;
+package org.elise.test.script.http;
 
 import org.elise.test.framework.transaction.http.HttpResultCallBack;
 import org.elise.test.framework.transaction.http.HttpTransaction;
