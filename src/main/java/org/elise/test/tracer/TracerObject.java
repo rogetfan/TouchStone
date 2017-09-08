@@ -3,6 +3,10 @@ package org.elise.test.tracer;
 import org.elise.test.util.DateUtil;
 import org.elise.test.util.StringUtil;
 
+
+/**
+ * Created by Glenn on 2016/10/25.
+ */
 public class TracerObject {
 	private long timeStamp;
 	private String className;

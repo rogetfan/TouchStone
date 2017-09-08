@@ -3,13 +3,13 @@ package org.elise.test.script.http;
 import org.elise.test.framework.transaction.http.HttpResultCallBack;
 import org.elise.test.framework.transaction.http.HttpTransaction;
 import org.elise.test.framework.transaction.http.HttpTransactionManager;
-import org.elise.test.framework.user.VirtualUser;
+import org.elise.test.framework.usergroup.VirtualUser;
 import org.elise.test.tracer.Tracer;
 
 import java.util.UUID;
 
 /**
- * Created by huxuehan on 2016/10/19.
+ * Created by Glenn on 2016/10/25.
  */
 public class HttpUser extends VirtualUser<HttpUserInfo> {
     private static final String ACTION_1="visit_baidu";

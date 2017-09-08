@@ -3,6 +3,10 @@ package org.elise.test.tracer;
 import java.util.Properties;
 import org.elise.test.config.Configuration;
 
+
+/**
+ * Created by Glenn on 2016/10/25.
+ */
 public class TracerConfig implements Configuration {
 
 	private static TracerConfig config;

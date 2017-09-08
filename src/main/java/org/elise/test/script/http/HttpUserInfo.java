@@ -1,10 +1,10 @@
 package org.elise.test.script.http;
 
-import org.elise.test.framework.user.UserInfo;
+import org.elise.test.framework.usergroup.VirtualUserInfo;
 
 /**
- * Created by huxuehan on 2016/10/19.
+ * Created by Glenn on 2016/10/25.
  */
-public class HttpUserInfo extends UserInfo {
+public class HttpUserInfo extends VirtualUserInfo {
 
 }

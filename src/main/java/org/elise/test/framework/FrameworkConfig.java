@@ -3,13 +3,18 @@ package org.elise.test.framework;
 import java.util.Properties;
 import org.elise.test.config.Configuration;
 
+
+/**
+ * Created by Glenn on 2016/10/25.
+ */
+
 public class FrameworkConfig implements Configuration
 {
 	private static FrameworkConfig config;
-	private static Integer VirtualUserGroup;
-	private static Integer GroupCount;
-	private static Integer TranDispatcherCount;
-
+	private static Integer virtualUserGroup;
+	private static Integer groutpUserCount;
+	private static Integer tranDispatcherCount;
+	private static Integer netWorkSenderCount;
 	private static Long maxIntervalTimeStamp;
 
 	private FrameworkConfig() {
@@ -24,23 +29,31 @@ public class FrameworkConfig implements Configuration
     }
 
 	public void loadConfiguration(Properties prop) {
-		VirtualUserGroup = Integer.parseInt(prop.getProperty("VirtualUserGroup","10"));
-		GroupCount = Integer.parseInt(prop.getProperty("GroupCount","1000"));
+		virtualUserGroup = Integer.parseInt(prop.getProperty("VirtualUserGroup","10"));
+		groutpUserCount = Integer.parseInt(prop.getProperty("GroupUserCount","1000"));
 		maxIntervalTimeStamp = Long.parseLong(prop.getProperty("MaxIntervalTimeStamp","2000"));
-		TranDispatcherCount=Integer.parseInt(prop.getProperty("TranDispatcherCount","2000"));
+		tranDispatcherCount=Integer.parseInt(prop.getProperty("TranDispatcherCount","2000"));
+		netWorkSenderCount = Integer.parseInt(prop.getProperty("NetWorkSenderCount","10"));
 	}
 
 	public static Integer getVirtualUserGroup() {
-		return VirtualUserGroup;
+		return virtualUserGroup;
 	}
 
-	public static Integer getGroupCount() {
-		return GroupCount;
+	public static Integer getGroutpUserCount() {
+		return groutpUserCount;
 	}
+
 	public static Integer getTranDispatcherCount() {
-		return TranDispatcherCount;
+		return tranDispatcherCount;
 	}
+
+	public static Integer getNetWorkSenderCount() {
+		return netWorkSenderCount;
+	}
+
 	public Long getMaxIntervalTimeStamp() {
 		return maxIntervalTimeStamp;
 	}
+
 }

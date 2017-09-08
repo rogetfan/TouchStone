@@ -2,6 +2,9 @@ package org.elise.test.lr;
 
 import lrapi.lr;
 
+/**
+ * Created by Glenn on 2016/10/25.
+ */
 public class LrTransStatus
 {
 	public String transactionName;

@@ -3,6 +3,10 @@ package org.elise.test.lr;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+
+/**
+ * Created by Glenn on 2016/10/25.
+ */
 public class LrTransStatusManager {
 	private static final LinkedBlockingQueue<LrTransStatus> CONTAINER = new LinkedBlockingQueue<LrTransStatus>();
 	

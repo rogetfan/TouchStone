@@ -4,6 +4,10 @@ import org.elise.test.tracer.writer.ConsoleWriter;
 import org.elise.test.tracer.writer.FileWriter;
 import org.elise.test.tracer.writer.RemoteWriter;
 
+
+/**
+ * Created by Glenn on 2016/10/25.
+ */
 public class Tracer
 {
     private static ConsoleWriter  consoleWriter = null;

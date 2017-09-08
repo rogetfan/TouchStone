@@ -2,6 +2,11 @@ package org.elise.test.tracer;
 
 import java.util.HashMap;
 
+
+
+/**
+ * Created by Glenn on 2016/10/25.
+ */
 public enum TracerLevelEnum {
     INFO("INFO", 1), WARN("WARN", 2), ERROR("ERROR", 3), SPECIAL("SPECIAL", 4), CLOSE("CLOSE", 5);
 

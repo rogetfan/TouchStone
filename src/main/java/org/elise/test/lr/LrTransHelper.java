@@ -2,6 +2,10 @@ package org.elise.test.lr;
 import lrapi.lr;
 import org.elise.test.tracer.Tracer;
 
+
+/**
+ * Created by Glenn on 2016/10/25.
+ */
 public class LrTransHelper {
 
     private static final Tracer tracer = Tracer.getInstance(LrTransHelper.class);

@@ -1,5 +1,9 @@
 package org.elise.test.util;
 
+
+/**
+ * Created by Glenn on 2016/10/25.
+ */
 public class StringUtil {
 	 
 	public static final String EMPTYSTRING = "";

@@ -3,6 +3,10 @@ package org.elise.test.util;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+
+/**
+ * Created by Glenn on 2016/10/25.
+ */
 public class DateUtil {
 
 	private static final String COMPLETEDATEFORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
