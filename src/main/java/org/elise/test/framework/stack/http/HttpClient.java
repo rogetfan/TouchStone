@@ -8,10 +8,18 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.*;
 import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.GenericFutureListener;
+import org.elise.test.framework.transaction.http.HttpResultCallBack;
 
 import java.io.UnsupportedEncodingException;
+import java.net.Inet4Address;
+import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Created by huxuehan on 2017/9/8.
@@ -20,9 +28,10 @@ public final class  HttpClient {
 
     EventLoopGroup workerGroup = new NioEventLoopGroup();
     Bootstrap b;
+    private HashMap<InetSocketAddress,ChannelFuture> hostMap = new HashMap<>();
     public HttpClient() {
 
-        Bootstrap b = new Bootstrap();
+        b = new Bootstrap();
         b.group(workerGroup);
         b.channel(NioSocketChannel.class);
         b.option(ChannelOption.SO_KEEPALIVE, true);
@@ -30,40 +39,27 @@ public final class  HttpClient {
         b.handler(new ChannelInitializer<SocketChannel>() {
             @Override
             public void initChannel(SocketChannel ch) throws Exception {
-                // 客户端接收到的是httpResponse响应，所以要使用HttpResponseDecoder进行解码
-                ch.pipeline().addLast(new HttpResponseDecoder());
-                // 客户端发送的是httprequest，所以要使用HttpRequestEncoder进行编码
-                ch.pipeline().addLast(new HttpRequestEncoder());
-                ch.pipeline().addLast(new HttpClientInboundHandler());
+                ChannelPipeline p = ch.pipeline();
+                p.addLast("HttpResponseDecoder",new HttpResponseDecoder());
+                p.addLast("HttpRequestEncoder",new HttpRequestEncoder());
+                p.addLast("Aggregator", new HttpObjectAggregator(1024*1024));
+                p.addLast("HttpClient",new HttpClientInboundHandler());
             }
         });
     }
-    public void invoke(String host,Integer port,HttpMethod method) throws URISyntaxException, UnsupportedEncodingException, InterruptedException {
-        // Start the client.
-        ChannelFuture f = b.connect(host, port);
-        f.addListener(new ChannelFutureListener() {
-            @Override
-            public void operationComplete(ChannelFuture channelFuture) throws Exception {
-                channelFuture.channel().writeAndFlush()
-                URI uri = new URI("http://127.0.0.1:8844");
-                String msg = "Are you ok?";
-                DefaultFullHttpRequest request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, method,
-                        uri.toASCIIString(), Unpooled.wrappedBuffer(msg.getBytes("UTF-8")));
 
-                // 构建http请求
-                request.headers().set(HttpHeaderNames.HOST, host);
-                request.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
-                request.headers().set(HttpHeaderNames.CONTENT_LENGTH, request.content().readableBytes());
-                // 发送http请求
-                channelFuture.channel().write(request);
-                channelFuture.channel().flush();
-                channelFuture.channel().closeFuture().sync();
-                channelFuture.channel().
-            }
-        });
-
-
+    public void close(){
+        workerGroup.shutdownGracefully();
     }
 
+    public void invoke(String host, Integer port, String url , HttpMethod method, DefaultHttpHeaders headers) throws URISyntaxException, UnsupportedEncodingException, InterruptedException {
+        InetSocketAddress address = new InetSocketAddress(host,port);
+        ChannelFuture future = hostMap.get(address);
+        if( future == null || ! future.channel().isRegistered()) {
+             future = b.connect(host, port);
+            hostMap.put(address, future);
 
+        }
+        future.addListener(new HttpConnListener(url,method,headers));
+    }
 }
