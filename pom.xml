@@ -21,11 +21,12 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpasyncclient</artifactId>
-			<version>4.1.1</version>
+			<groupId>io.netty</groupId>
+			<artifactId>netty-all</artifactId>
+			<version>4.1.15.Final</version>
 		</dependency>
-		<dependency>
+
+		<dependency>S
 			<!-- mvn install:install-file -DgroupId=com.loadrunner -DartifactId=lrapi -Dversion=1.0 -Dpackaging=jar -Dfile=api.jar -->
 			<groupId>com.loadrunner</groupId>
 			<artifactId>lrapi</artifactId>
