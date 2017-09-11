@@ -9,6 +9,10 @@ target/
 bin/
 .idea/
 .settings/
+
+# Gradle
+.gradle/
+build/
  
 # ignore eclipse files
 # This configuration is only suited for maven project,there will be 
