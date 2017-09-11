@@ -52,7 +52,6 @@ public class HttpClientInboundHandler  extends ChannelInboundHandlerAdapter {
             callBack.success(buf.toString(io.netty.util.CharsetUtil.UTF_8),new Object());
             buf.release();
         }
-        System.out.println(ctx.channel().id());
 
     }
 

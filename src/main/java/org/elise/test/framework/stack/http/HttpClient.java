@@ -52,7 +52,7 @@ public final class  HttpClient {
         workerGroup.shutdownGracefully();
     }
 
-    public void invoke(String host, Integer port, String url , HttpMethod method, DefaultHttpHeaders headers) throws URISyntaxException, UnsupportedEncodingException, InterruptedException {
+    public void invoke(String host, Integer port, String url , HttpMethod method, DefaultHttpHeaders headers,HttpResultCallBack callBack) throws URISyntaxException, UnsupportedEncodingException, InterruptedException {
         InetSocketAddress address = new InetSocketAddress(host,port);
         ChannelFuture future = hostMap.get(address);
         if( future == null || ! future.channel().isRegistered()) {
@@ -60,6 +60,6 @@ public final class  HttpClient {
             hostMap.put(address, future);
 
         }
-        future.addListener(new HttpConnListener(url,method,headers));
+        future.addListener(new HttpConnListener(url,method,headers,callBack));
     }
 }

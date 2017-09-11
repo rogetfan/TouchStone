@@ -12,12 +12,14 @@ public class HttpConnListener implements ChannelFutureListener {
     private String url;
     private HttpMethod method;
     private DefaultHttpHeaders headers;
+    private HttpResultCallBack callBack;
 
 
-    public HttpConnListener(String url, HttpMethod method, DefaultHttpHeaders headers) {
+    public HttpConnListener(String url, HttpMethod method, DefaultHttpHeaders headers,HttpResultCallBack callBack) {
         this.url = url;
         this.method = method;
         this.headers = headers;
+        this.callBack = callBack;
     }
 
     @Override
@@ -32,29 +34,7 @@ public class HttpConnListener implements ChannelFutureListener {
                 // 构建http请求
                 future.channel().writeAndFlush(request).addListener((ChannelFutureListener) channelFuture -> {
                     HttpClientInboundHandler handler = (HttpClientInboundHandler) channelFuture.channel().pipeline().get("HttpClient");
-                    handler.setCallBack(new HttpResultCallBack() {
-                        @Override
-                        public void success(String responseMessage, Object object) {
-                            System.out.println("321");
-                            System.out.println(responseMessage);
-                        }
-
-                        @Override
-                        public void error(String responseMessage, Integer statusCode, Object object) {
-
-                        }
-
-                        @Override
-                        public void failed(Exception e) {
-
-                        }
-
-                        @Override
-                        public void unreachable() {
-
-                        }
-                    });
-                });
+                    handler.setCallBack(callBack);});
             } else if (future.isCancelled()) {
                 future.channel().closeFuture().sync();
 
