@@ -33,8 +33,8 @@ public class HttpConnListener implements ChannelFutureListener {
                 request.headers().set(headers);
                 // 构建http请求
                 future.channel().writeAndFlush(request).addListener((ChannelFutureListener) channelFuture -> {
-                    HttpClientInboundHandler handler = (HttpClientInboundHandler) channelFuture.channel().pipeline().get("HttpClient");
-                    handler.setCallBack(callBack);});
+                    HttpClient.putCallBack(channelFuture.channel().remoteAddress(), callBack);
+                });
             } else if (future.isCancelled()) {
                 future.channel().closeFuture().sync();
 

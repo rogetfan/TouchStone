@@ -15,11 +15,6 @@ import java.util.concurrent.TimeUnit;
  */
 public class HttpClientInboundHandler  extends ChannelInboundHandlerAdapter {
 
-    private HttpResultCallBack callBack;
-
-    public void setCallBack(HttpResultCallBack callBack){
-        this.callBack = callBack;
-    }
 
     public HttpClientInboundHandler() {
     }
@@ -49,8 +44,9 @@ public class HttpClientInboundHandler  extends ChannelInboundHandlerAdapter {
                 System.out.println(entry.getKey()+":"+entry.getValue());
             }
             ByteBuf buf = response.content();
-            callBack.success(buf.toString(io.netty.util.CharsetUtil.UTF_8),new Object());
+            HttpClient.getCallBack( ctx.channel().remoteAddress()).success(buf.toString(io.netty.util.CharsetUtil.UTF_8),buf);
             buf.release();
+
         }
 
     }
