@@ -11,6 +11,7 @@ import org.elise.test.util.StringUtil;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Map;
 
 public class HttpConnListener implements ChannelFutureListener {
 
@@ -34,31 +35,50 @@ public class HttpConnListener implements ChannelFutureListener {
         try {
             if (future.isDone()) {
                 if (future.isSuccess()) {
-                    URI uri = new URI(url);
                     DefaultFullHttpRequest request;
                     if (httpBody == null) {
-                        request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, method, uri.toASCIIString());
+                        request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, method, new URI(url).toASCIIString());
                     } else {
                         ByteBuf body = PooledByteBufAllocator.DEFAULT.buffer().writeBytes(httpBody);
-                        request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, method, uri.toASCIIString(), body);
+                        request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, method, new URI(url).toASCIIString(), body);
                     }
                     headers.set(HttpHeaderNames.CONTENT_LENGTH, request.content().readableBytes());
                     request.headers().set(headers);
                     future.channel().writeAndFlush(request).addListener((ChannelFutureListener) channelFuture -> {
                         if (channelFuture.isDone()) {
                             if (channelFuture.isSuccess()) {
-                                //Write request log
+                                callBack.setSequence(HttpClient.getCounter(channelFuture.channel().remoteAddress()));
+                                // Write request log
                                 if (tracer.isInfoAvailable()) {
-                                    StringBuilder sb = new StringBuilder();
-                                    sb.append("------------- ");
-                                    sb.append("Channel Id:");
-                                    sb.append(channelFuture.channel().id());
-                                    sb.append(" Sequence:");
-                                    sb.append(" -------------");
-                                    sb.append(StringUtil.ENDLINE);
-                                    sb.append(request.toString());
-                                    tracer.writeInfo(sb.toString());
-
+                                    StringBuilder req = new StringBuilder();
+                                    req.append("--------------------- ");
+                                    req.append("Channel Id:");
+                                    req.append(channelFuture.channel().id());
+                                    req.append(" Sequence:");
+                                    req.append(callBack.getSequence());
+                                    req.append(" ---------------------");
+                                    req.append(StringUtil.ENDLINE);
+                                    req.append(request.method());
+                                    req.append(StringUtil.SPACE);
+                                    URI uri = new URI(request.uri());
+                                    req.append(uri.getPath());
+                                    req.append("?");
+                                    req.append(uri.getQuery());
+                                    req.append(StringUtil.SPACE);
+                                    req.append(request.protocolVersion());
+                                    req.append(StringUtil.ENDLINE);
+                                    for (Map.Entry<String, String> entry : request.headers().entries()) {
+                                        req.append(entry.getKey()).append(":").append(entry.getValue());
+                                        req.append(StringUtil.ENDLINE);
+                                    }
+                                    req.append(StringUtil.ENDLINE);
+                                    req.append(StringUtil.ENDLINE);
+                                    if(request.content().readableBytes() > 8*1024){
+                                        req.append("REQUEST BOOOOOOODY　TOOOOOO LARGE");
+                                    }else{
+                                        req.append(request.content().toString(io.netty.util.CharsetUtil.UTF_8));
+                                    }
+                                    tracer.writeInfo(req.toString());
                                 }
                                 HttpClient.putCallBack(channelFuture.channel().remoteAddress(), callBack);
 

@@ -27,4 +27,8 @@ public interface HttpResultCallBack {
      * */
      void unreachable();
 
+     long getSequence();
+
+     void setSequence(long sequence);
+
 }

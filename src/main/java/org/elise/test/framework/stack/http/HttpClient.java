@@ -17,16 +17,19 @@ import java.net.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Created by Glenn on 2017/9/8.
  */
 public final class HttpClient {
 
-    EventLoopGroup workerGroup = new NioEventLoopGroup();
+    EventLoopGroup workerGroup = new NioEventLoopGroup(32);
     Bootstrap b;
     private Map<SocketAddress, ChannelFuture> hostMap = new ConcurrentHashMap<>();
     private static Map<SocketAddress, ConcurrentLinkedQueue<HttpResultCallBack>> callBackQueue = new ConcurrentHashMap<>();
+    private static Map<SocketAddress,AtomicLong> counterMap = new ConcurrentHashMap<>();
+
 
     public HttpClient() {
 
@@ -35,7 +38,7 @@ public final class HttpClient {
         b.channel(NioSocketChannel.class);
         b.option(ChannelOption.SO_KEEPALIVE, true);
         b.option(ChannelOption.TCP_NODELAY, true);
-        b.option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
+        b.option(ChannelOption.ALLOCATOR, new PooledByteBufAllocator());
         b.handler(new ChannelInitializer<SocketChannel>() {
             @Override
             public void initChannel(SocketChannel ch) throws Exception {
@@ -50,6 +53,18 @@ public final class HttpClient {
 
     public void close() {
         workerGroup.shutdownGracefully();
+    }
+
+
+    public static long getCounter(SocketAddress address){
+           synchronized (counterMap){
+               AtomicLong counter = counterMap.get(address);
+               if(counter == null){
+                   counter = new AtomicLong(0);
+                   counterMap.put(address,counter);
+               }
+               return counter.incrementAndGet();
+           }
     }
 
     public static HttpResultCallBack getCallBack(SocketAddress address) throws Exception {
@@ -119,6 +134,7 @@ public final class HttpClient {
                         callBack.failed(new Exception("Channel has been destroy"));
                     }
                 }
+                counterMap.remove(address);
                 future = b.connect(host, port);
                 hostMap.put(address, future);
                 callBackQueue.put(address, new ConcurrentLinkedQueue<>());
@@ -128,5 +144,4 @@ public final class HttpClient {
             }
         }
     }
-
 }
