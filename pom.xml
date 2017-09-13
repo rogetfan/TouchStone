@@ -45,7 +45,7 @@
 					</descriptorRefs>
 					<archive>
 						<manifest>
-							<mainClass>Test</mainClass>
+							<mainClass>org.elise.test.framework.stack.http.TestHttp</mainClass>
 						</manifest>
 					</archive>
 				</configuration>

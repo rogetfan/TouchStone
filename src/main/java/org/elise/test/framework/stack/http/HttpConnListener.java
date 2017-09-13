@@ -1,5 +1,4 @@
 package org.elise.test.framework.stack.http;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.ChannelFuture;
@@ -9,19 +8,21 @@ import org.elise.test.framework.transaction.http.HttpResultCallBack;
 import org.elise.test.tracer.Tracer;
 import org.elise.test.util.StringUtil;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
 
 public class HttpConnListener implements ChannelFutureListener {
 
-    public static Tracer tracer = Tracer.getInstance(HttpClientInboundHandler.class);
+    public static final Tracer tracer = Tracer.getInstance(HttpClientHandler.class);
 
     private String url;
     private HttpMethod method;
     private DefaultHttpHeaders headers;
     private HttpResultCallBack callBack;
     private byte[] httpBody;
+
     public HttpConnListener(String url, HttpMethod method, DefaultHttpHeaders headers, HttpResultCallBack callBack, byte[] httpBody) {
         this.url = url;
         this.method = method;
@@ -47,40 +48,17 @@ public class HttpConnListener implements ChannelFutureListener {
                     future.channel().writeAndFlush(request).addListener((ChannelFutureListener) channelFuture -> {
                         if (channelFuture.isDone()) {
                             if (channelFuture.isSuccess()) {
-                                callBack.setSequence(HttpClient.getCounter(channelFuture.channel().remoteAddress()));
+                                callBack.setSequenceNum(HttpClient.getInstance().getCounter(channelFuture.channel().remoteAddress()));
                                 // Write request log
                                 if (tracer.isInfoAvailable()) {
-                                    StringBuilder req = new StringBuilder();
-                                    req.append("--------------------- ");
-                                    req.append("Channel Id:");
-                                    req.append(channelFuture.channel().id());
-                                    req.append(" Sequence:");
-                                    req.append(callBack.getSequence());
-                                    req.append(" ---------------------");
-                                    req.append(StringUtil.ENDLINE);
-                                    req.append(request.method());
-                                    req.append(StringUtil.SPACE);
-                                    URI uri = new URI(request.uri());
-                                    req.append(uri.getPath());
-                                    req.append("?");
-                                    req.append(uri.getQuery());
-                                    req.append(StringUtil.SPACE);
-                                    req.append(request.protocolVersion());
-                                    req.append(StringUtil.ENDLINE);
-                                    for (Map.Entry<String, String> entry : request.headers().entries()) {
-                                        req.append(entry.getKey()).append(":").append(entry.getValue());
-                                        req.append(StringUtil.ENDLINE);
-                                    }
-                                    req.append(StringUtil.ENDLINE);
-                                    req.append(StringUtil.ENDLINE);
-                                    if(request.content().readableBytes() > 8*1024){
-                                        req.append("REQUEST BOOOOOOODY　TOOOOOO LARGE");
-                                    }else{
-                                        req.append(request.content().toString(io.netty.util.CharsetUtil.UTF_8));
-                                    }
-                                    tracer.writeInfo(req.toString());
+                                    writeRequestLog(channelFuture.channel().id().asLongText(),
+                                            request.method().toString(),
+                                            url,
+                                            request.protocolVersion().toString(),
+                                            request.headers()
+                                    );
                                 }
-                                HttpClient.putCallBack(channelFuture.channel().remoteAddress(), callBack);
+                                HttpClient.getInstance().putCallBack(channelFuture.channel().remoteAddress(), callBack);
 
                             } else if (channelFuture.isCancelled()) {
 
@@ -112,5 +90,39 @@ public class HttpConnListener implements ChannelFutureListener {
             tracer.writeError("Interruption happened when close the future ");
             callBack.failed(e);
         }
+    }
+
+    private void writeRequestLog(String id,String method,String url,String protocolVersion,HttpHeaders headers) throws URISyntaxException, UnsupportedEncodingException {
+        StringBuilder req = new StringBuilder();
+        req.append("--------------------- ");
+        req.append("Channel Id:");
+        req.append(id);
+        req.append(" Sequence:");
+        req.append(callBack.getSequenceNum());
+        req.append(" ---------------------");
+        req.append(StringUtil.ENDLINE);
+        req.append(method);
+        req.append(StringUtil.SPACE);
+        URI uri = new URI(url);
+        req.append(uri.getPath());
+        if (uri.getQuery() != null) {
+            req.append("?");
+            req.append(uri.getQuery());
+        }
+        req.append(StringUtil.SPACE);
+        req.append(protocolVersion);
+        req.append(StringUtil.ENDLINE);
+        for (Map.Entry<String, String> entry : headers.entries()) {
+            req.append(entry.getKey()).append(":").append(entry.getValue());
+            req.append(StringUtil.ENDLINE);
+        }
+        req.append(StringUtil.ENDLINE);
+        req.append(StringUtil.ENDLINE);
+        if (httpBody.length > 8 * 1024) {
+            req.append("REQUEST BOOOOOOODY　TOOOOOO LARGE");
+        } else {
+            req.append(new String(httpBody,"UTF-8"));
+        }
+        tracer.writeInfo(req.toString());
     }
 }
