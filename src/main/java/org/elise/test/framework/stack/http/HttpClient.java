@@ -10,39 +10,56 @@ import io.netty.handler.codec.http.*;
 import org.elise.test.framework.transaction.http.HttpResultCallBack;
 
 import java.net.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Created by Glenn on 2017/9/8.
  */
 public final class HttpClient {
 
-    private static final EventLoopGroup workerGroup = new NioEventLoopGroup();
+    private static final EventLoopGroup workerGroup = new NioEventLoopGroup(32);
     private static final Bootstrap b = new Bootstrap();
-    private static final Map<SocketAddress, ChannelFuture> hostMap = new ConcurrentHashMap<>();
-    private static final Map<SocketAddress, ConcurrentLinkedQueue<HttpResultCallBack>> callBackQueue = new ConcurrentHashMap<>();
-    private static final Map<SocketAddress, AtomicLong> counterMap = new ConcurrentHashMap<>();
+
+    private static final Map<SocketAddress, List<HttpConnection>> hostPool = new ConcurrentHashMap<>();
+    private static final Map<String, HttpConnection> connectionMap = new ConcurrentHashMap<>();
+
     private static HttpClient client = null;
     private static Boolean isInitialized = false;
+    private static Integer maxConnCount;
 
+    private static final Integer DEFAULT_MAX_CONN_COUNT = 8;
+    private static final Integer DEFAULT_MAX_CONTENT_LENGTH = 1024*1024*8;
 
-    public static HttpClient getInstance() {
+    public static HttpConnection getInstance(Integer flag, URI uri) {
         synchronized (isInitialized) {
             if (!isInitialized) {
-                initialize();
+                start(DEFAULT_MAX_CONN_COUNT,DEFAULT_MAX_CONTENT_LENGTH);
             }
         }
-        return client;
+        SocketAddress address = new InetSocketAddress(uri.getHost(), uri.getPort() == -1 ? 80 : uri.getPort());
+        List<HttpConnection> connList ;
+        synchronized (hostPool) {
+            connList = hostPool.get(address);
+            if (connList == null) {
+                connList = new ArrayList<>(maxConnCount);
+                for (int i = 0; i < maxConnCount; i++)
+                    connList.add(new HttpConnection(client,i,address));
+                hostPool.put(address,connList);
+            }
+        }
+        return connList.get(flag % maxConnCount);
     }
 
-    public static void initialize() {
-        client = new HttpClient();
+
+    public static void start(Integer maxContentLength, Integer maxConnCount) {
+        client = new HttpClient(maxContentLength,maxConnCount);
         isInitialized = true;
     }
 
-    private HttpClient() {
+    private HttpClient(Integer maxContentLength, Integer maxConnCount) {
         b.group(workerGroup);
         b.channel(NioSocketChannel.class);
         b.option(ChannelOption.SO_KEEPALIVE, true);
@@ -54,109 +71,53 @@ public final class HttpClient {
                 ChannelPipeline p = ch.pipeline();
                 p.addLast("HttpResponseDecoder", new HttpResponseDecoder());
                 p.addLast("HttpRequestEncoder", new HttpRequestEncoder());
-                p.addLast("Aggregator", new HttpObjectAggregator(1024 * 1024 * 8));
-                p.addLast("HttpClient", new HttpClientHandler());
+                p.addLast("Aggregator", new HttpObjectAggregator(maxContentLength));
+                p.addLast("HttpClient", new HttpRespHandler());
             }
         });
+        this.maxConnCount = maxConnCount;
     }
 
-    public void close() {
+    public static void close() {
         workerGroup.shutdownGracefully();
     }
 
+    protected void register(String channelId, HttpConnection conn){
+        connectionMap.put(channelId,conn);
+    }
 
-    public long getCounter(SocketAddress address) {
-        synchronized (counterMap) {
-            AtomicLong counter = counterMap.get(address);
-            if (counter == null) {
-                counter = new AtomicLong(0);
-                counterMap.put(address, counter);
-            }
-            return counter.incrementAndGet();
+    protected void unregister(String channelId){
+        connectionMap.remove(channelId);
+    }
+
+    protected Bootstrap getBootstrap(){
+        return b;
+    }
+
+    protected static long getCounter(String channelId) throws Exception {
+        HttpConnection conn = connectionMap.get(channelId);
+        if (conn == null) {
+            throw new Exception("Http Connection is null");
+        } else {
+            return conn.getCounter();
         }
     }
 
-    public HttpResultCallBack getCallBack(SocketAddress address) throws Exception {
-        synchronized (callBackQueue) {
-            ConcurrentLinkedQueue<HttpResultCallBack> queue = callBackQueue.get(address);
-            if (queue == null || queue.isEmpty()) {
-                throw new Exception("Transaction CallBack missed");
-            } else {
-                return callBackQueue.get(address).poll();
-            }
+    protected static HttpResultCallBack getCallBack(String channelId) throws Exception {
+        HttpConnection conn = connectionMap.get(channelId);
+        if (conn == null) {
+            throw new Exception("Http Connection is null");
+        } else {
+            return conn.getCallBack();
         }
     }
 
-    public boolean putCallBack(SocketAddress address, HttpResultCallBack callBack) {
-        synchronized (callBackQueue) {
-            if (!callBackQueue.containsKey(address)) {
-                ConcurrentLinkedQueue<HttpResultCallBack> queue = new ConcurrentLinkedQueue<>();
-                queue.add(callBack);
-                callBackQueue.put(address, queue);
-                return true;
-            } else {
-                ConcurrentLinkedQueue<HttpResultCallBack> queue = callBackQueue.get(address);
-                if (queue == null) {
-                    return false;
-                } else {
-                    queue.add(callBack);
-                    return true;
-                }
-            }
-        }
-    }
-
-    public void invokePost(String url, DefaultHttpHeaders headers, byte[] httpBody, HttpResultCallBack callBack) throws URISyntaxException {
-        URI uri = new URI(url);
-        connect(uri.getHost(), uri.getPort()).addListener(new HttpConnListener(url, HttpMethod.POST, headers, callBack, httpBody));
-    }
-
-    public void invokeGet(String url, DefaultHttpHeaders headers, HttpResultCallBack callBack) throws URISyntaxException {
-        URI uri = new URI(url);
-        connect(uri.getHost(), uri.getPort()).addListener(new HttpConnListener(url, HttpMethod.GET, headers, callBack, null));
-    }
-
-    public void invokeDelete(String url, DefaultHttpHeaders headers, HttpResultCallBack callBack) throws URISyntaxException {
-        URI uri = new URI(url);
-        connect(uri.getHost(), uri.getPort()).addListener(new HttpConnListener(url, HttpMethod.DELETE, headers, callBack, null));
-    }
-
-    public void invokePut(String url, DefaultHttpHeaders headers, byte[] httpBody, HttpResultCallBack callBack) throws URISyntaxException {
-        URI uri = new URI(url);
-        connect(uri.getHost(), uri.getPort()).addListener(new HttpConnListener(url, HttpMethod.PUT, headers, callBack, httpBody));
-    }
-
-
-    public void invoke(String url, HttpMethod method, DefaultHttpHeaders headers, byte[] httpBody, HttpResultCallBack callBack) throws URISyntaxException {
-        URI uri = new URI(url);
-        connect(uri.getHost(), uri.getPort()).addListener(new HttpConnListener(url, method, headers, callBack, httpBody));
-    }
-
-    private ChannelFuture connect(String host, Integer port) {
-        port = port == -1?80:port;
-        SocketAddress address = new InetSocketAddress(host, port);
-        synchronized (hostMap) {
-            ChannelFuture future = hostMap.get(address);
-            if (future == null) {
-                future = b.connect(host, port);
-                hostMap.put(address, future);
-                callBackQueue.put(address, new ConcurrentLinkedQueue<>());
-                return future;
-            } else if (!future.channel().isRegistered()) {
-                ConcurrentLinkedQueue<HttpResultCallBack> queue = callBackQueue.get(address);
-                if (queue != null && !queue.isEmpty()) {
-                    for (HttpResultCallBack callBack : queue) {
-                        callBack.failed(new Exception("Channel has been destroy"));
-                    }
-                }
-                counterMap.remove(address);
-                future = b.connect(host, port);
-                hostMap.put(address, future);
-                callBackQueue.put(address, new ConcurrentLinkedQueue<>());
-                return future;
-            } else {
-                return future;
-            }
+    protected static void putCallBack(String channelId, HttpResultCallBack callBack) throws Exception {
+        HttpConnection conn = connectionMap.get(channelId);
+        if (conn == null) {
+            throw new Exception("Http Connection is null");
+        } else {
+            conn.setCallBack(callBack);
         }
     }
 }

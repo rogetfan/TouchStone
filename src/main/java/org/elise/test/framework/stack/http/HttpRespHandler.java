@@ -2,7 +2,6 @@ package org.elise.test.framework.stack.http;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.util.ReferenceCountUtil;
@@ -11,17 +10,17 @@ import org.elise.test.tracer.Tracer;
 import org.elise.test.util.StringUtil;
 
 import java.io.UnsupportedEncodingException;
-import java.net.SocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Created by Glenn on 2017/9/8.
  */
-public class HttpClientHandler extends ChannelInboundHandlerAdapter {
-    public static final Tracer TRACER = Tracer.getInstance(HttpClientHandler.class);
+public class HttpRespHandler extends ChannelInboundHandlerAdapter {
 
-    public HttpClientHandler() {
+    public static final Tracer TRACER = Tracer.getInstance(HttpRespHandler.class);
+
+    public HttpRespHandler() {
     }
 
 
@@ -44,8 +43,7 @@ public class HttpClientHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg instanceof FullHttpResponse) {
             FullHttpResponse response = (FullHttpResponse) msg;
-            SocketAddress remoteAddress = ctx.channel().remoteAddress();
-            HttpResultCallBack callBack = HttpClient.getInstance().getCallBack(remoteAddress);
+            HttpResultCallBack callBack =HttpClient.getCallBack(ctx.channel().id().asLongText());
             // Write response log
             byte[] httpContent = new byte[response.content().readableBytes()];
             response.content().readBytes(httpContent);
@@ -79,7 +77,7 @@ public class HttpClientHandler extends ChannelInboundHandlerAdapter {
         StringBuilder sb = new StringBuilder();
         sb.append("--------------------- ");
         sb.append("Channel Id:");
-        sb.append(ctx.channel().id());
+        sb.append(ctx.channel().id().asLongText());
         sb.append(" Sequence:");
         sb.append(callBack.getSequenceNum());
         sb.append(" ---------------------");
