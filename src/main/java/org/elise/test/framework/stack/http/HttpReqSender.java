@@ -63,7 +63,7 @@ public class HttpReqSender {
                     callBack.unreachable();
                 } else if (channelFuture.cause() != null) {
                     channelFuture.channel().closeFuture().sync();
-                    tracer.writeError("Exception take place when send request to remote " + channelFuture.channel().remoteAddress().toString());
+                    tracer.writeError("Exception take place when send request to remote " + channelFuture.channel().remoteAddress());
                     callBack.failed(channelFuture.cause());
                 }
 

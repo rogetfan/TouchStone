@@ -20,7 +20,7 @@ import java.util.concurrent.*;
  */
 public final class HttpClient {
 
-    private static final EventLoopGroup workerGroup = new NioEventLoopGroup(32);
+    private static final EventLoopGroup workerGroup = new NioEventLoopGroup();
     private static final Bootstrap b = new Bootstrap();
 
     private static final Map<SocketAddress, List<HttpConnection>> hostPool = new ConcurrentHashMap<>();
@@ -28,7 +28,7 @@ public final class HttpClient {
 
     private static HttpClient client = null;
     private static Boolean isInitialized = false;
-    private static Integer maxConnCount;
+    private static Integer maxConnCountPerPort;
 
     private static final Integer DEFAULT_MAX_CONN_COUNT = 8;
     private static final Integer DEFAULT_MAX_CONTENT_LENGTH = 1024*1024*8;
@@ -44,22 +44,22 @@ public final class HttpClient {
         synchronized (hostPool) {
             connList = hostPool.get(address);
             if (connList == null) {
-                connList = new ArrayList<>(maxConnCount);
-                for (int i = 0; i < maxConnCount; i++)
+                connList = new ArrayList<>(maxConnCountPerPort);
+                for (int i = 0; i < maxConnCountPerPort; i++)
                     connList.add(new HttpConnection(client,i,address));
                 hostPool.put(address,connList);
             }
         }
-        return connList.get(flag % maxConnCount);
+        return connList.get(flag % maxConnCountPerPort);
     }
 
 
-    public static void start(Integer maxContentLength, Integer maxConnCount) {
-        client = new HttpClient(maxContentLength,maxConnCount);
+    public static void start(Integer maxContentLength, Integer maxConnCountPerPort) {
+        client = new HttpClient(maxContentLength,maxConnCountPerPort);
         isInitialized = true;
     }
 
-    private HttpClient(Integer maxContentLength, Integer maxConnCount) {
+    private HttpClient(Integer maxContentLength, Integer maxConnCountPerPort) {
         b.group(workerGroup);
         b.channel(NioSocketChannel.class);
         b.option(ChannelOption.SO_KEEPALIVE, true);
@@ -75,7 +75,7 @@ public final class HttpClient {
                 p.addLast("HttpClient", new HttpRespHandler());
             }
         });
-        this.maxConnCount = maxConnCount;
+        this.maxConnCountPerPort = maxConnCountPerPort;
     }
 
     public static void close() {

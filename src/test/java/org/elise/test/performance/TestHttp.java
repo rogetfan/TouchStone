@@ -23,7 +23,7 @@ public class TestHttp {
 
     public static void main(String args[]) throws Throwable {
         ConfigLoader.getInstance().loadProperties("setting.properties", FrameworkConfig.getInstance(), TracerConfig.getInstance());
-        HttpClient.start(1024 * 1024 * 8, 128);
+        HttpClient.start(1024 * 1024 * 8, 32);
 
 //        URI uri = new URI("http://177.77.77.186:8084/inner/login");
 //        String postBody = "mobileNo=18620523707&passWord=MTIzNDU2&clientType=ios&versionCode=100";
@@ -86,7 +86,7 @@ public class TestHttp {
         postHeader.set(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED);
         postHeader.set(HttpHeaderNames.HOST, "www.cnblogs.com");
         postHeader.set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
-        for(int i=0;i<12800;i++) {
+        for(int i=0;i<1280;i++) {
             try {
                 HttpConnection conn = HttpClient.getInstance(i,uri);
                 conn.invokeGet(
@@ -113,7 +113,7 @@ public class TestHttp {
 
                             @Override
                             public void failed(Throwable t) {
-
+                                TRACER.writeError("",t);
                             }
 
                             @Override
