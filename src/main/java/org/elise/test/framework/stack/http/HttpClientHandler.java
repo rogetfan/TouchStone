@@ -96,7 +96,7 @@ public class HttpClientHandler extends ChannelInboundHandlerAdapter {
         }
         sb.append(StringUtil.ENDLINE);
         sb.append(StringUtil.ENDLINE);
-        if (httpContent.length > 8 * 1024) {
+        if (httpContent.length > 128 * 1024) {
             sb.append("REQUEST BOOOOOOODY　TOOOOOO LARGE");
         } else {
             sb.append(new String(httpContent, "UTF-8"));

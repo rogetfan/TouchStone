@@ -1,4 +1,5 @@
 package org.elise.test.framework.stack.http;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.ChannelFuture;
@@ -92,7 +93,7 @@ public class HttpConnListener implements ChannelFutureListener {
         }
     }
 
-    private void writeRequestLog(String id,String method,String url,String protocolVersion,HttpHeaders headers) throws URISyntaxException, UnsupportedEncodingException {
+    private void writeRequestLog(String id, String method, String url, String protocolVersion, HttpHeaders headers) throws URISyntaxException, UnsupportedEncodingException {
         StringBuilder req = new StringBuilder();
         req.append("--------------------- ");
         req.append("Channel Id:");
@@ -118,10 +119,12 @@ public class HttpConnListener implements ChannelFutureListener {
         }
         req.append(StringUtil.ENDLINE);
         req.append(StringUtil.ENDLINE);
-        if (httpBody.length > 8 * 1024) {
+        if (httpBody == null) {
+            req.append("");
+        } else if (httpBody.length > 8 * 1024) {
             req.append("REQUEST BOOOOOOODY　TOOOOOO LARGE");
         } else {
-            req.append(new String(httpBody,"UTF-8"));
+            req.append(new String(httpBody, "UTF-8"));
         }
         tracer.writeInfo(req.toString());
     }

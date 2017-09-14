@@ -133,6 +133,7 @@ public final class HttpClient {
     }
 
     private ChannelFuture connect(String host, Integer port) {
+        port = port == -1?80:port;
         SocketAddress address = new InetSocketAddress(host, port);
         synchronized (hostMap) {
             ChannelFuture future = hostMap.get(address);
