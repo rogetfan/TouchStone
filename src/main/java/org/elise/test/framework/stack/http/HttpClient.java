@@ -106,38 +106,39 @@ public final class HttpClient {
         }
     }
 
-    public void invokePost(String url, DefaultHttpHeaders headers, byte[] httpBody, HttpResultCallBack callBack) throws URISyntaxException {
+    public void invokePost(String url, DefaultHttpHeaders headers, byte[] httpBody, HttpResultCallBack callBack) throws URISyntaxException, InterruptedException {
         URI uri = new URI(url);
         connect(uri.getHost(), uri.getPort()).addListener(new HttpConnListener(url, HttpMethod.POST, headers, callBack, httpBody));
     }
 
-    public void invokeGet(String url, DefaultHttpHeaders headers, HttpResultCallBack callBack) throws URISyntaxException {
+    public void invokeGet(String url, DefaultHttpHeaders headers, HttpResultCallBack callBack) throws URISyntaxException, InterruptedException {
         URI uri = new URI(url);
         connect(uri.getHost(), uri.getPort()).addListener(new HttpConnListener(url, HttpMethod.GET, headers, callBack, null));
     }
 
-    public void invokeDelete(String url, DefaultHttpHeaders headers, HttpResultCallBack callBack) throws URISyntaxException {
+    public void invokeDelete(String url, DefaultHttpHeaders headers, HttpResultCallBack callBack) throws URISyntaxException, InterruptedException {
         URI uri = new URI(url);
         connect(uri.getHost(), uri.getPort()).addListener(new HttpConnListener(url, HttpMethod.DELETE, headers, callBack, null));
     }
 
-    public void invokePut(String url, DefaultHttpHeaders headers, byte[] httpBody, HttpResultCallBack callBack) throws URISyntaxException {
+    public void invokePut(String url, DefaultHttpHeaders headers, byte[] httpBody, HttpResultCallBack callBack) throws URISyntaxException, InterruptedException {
         URI uri = new URI(url);
         connect(uri.getHost(), uri.getPort()).addListener(new HttpConnListener(url, HttpMethod.PUT, headers, callBack, httpBody));
     }
 
 
-    public void invoke(String url, HttpMethod method, DefaultHttpHeaders headers, byte[] httpBody, HttpResultCallBack callBack) throws URISyntaxException {
+    public void invoke(String url, HttpMethod method, DefaultHttpHeaders headers, byte[] httpBody, HttpResultCallBack callBack) throws URISyntaxException, InterruptedException {
         URI uri = new URI(url);
         connect(uri.getHost(), uri.getPort()).addListener(new HttpConnListener(url, method, headers, callBack, httpBody));
     }
 
-    private ChannelFuture connect(String host, Integer port) {
+    private ChannelFuture connect(String host, Integer port) throws InterruptedException {
+        port = port == -1 ? 80 : port;
         SocketAddress address = new InetSocketAddress(host, port);
         synchronized (hostMap) {
             ChannelFuture future = hostMap.get(address);
             if (future == null) {
-                future = b.connect(host, port);
+                future = b.connect(host, port).sync();
                 hostMap.put(address, future);
                 callBackQueue.put(address, new ConcurrentLinkedQueue<>());
                 return future;
@@ -149,7 +150,7 @@ public final class HttpClient {
                     }
                 }
                 counterMap.remove(address);
-                future = b.connect(host, port);
+                future = b.connect(host, port).sync();
                 hostMap.put(address, future);
                 callBackQueue.put(address, new ConcurrentLinkedQueue<>());
                 return future;

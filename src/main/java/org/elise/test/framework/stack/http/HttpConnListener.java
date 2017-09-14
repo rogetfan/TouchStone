@@ -118,7 +118,10 @@ public class HttpConnListener implements ChannelFutureListener {
         }
         req.append(StringUtil.ENDLINE);
         req.append(StringUtil.ENDLINE);
-        if (httpBody.length > 8 * 1024) {
+        if(httpBody == null){
+            req.append("");
+        }
+        else if (httpBody.length > 8 * 1024) {
             req.append("REQUEST BOOOOOOODY　TOOOOOO LARGE");
         } else {
             req.append(new String(httpBody,"UTF-8"));
