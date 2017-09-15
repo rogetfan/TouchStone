@@ -54,32 +54,32 @@ public class HttpConnection {
         callBackQueue.add(callBack);
     }
 
-    public void invokePost(URI uri, DefaultHttpHeaders headers, byte[] httpBody, HttpResultCallBack callBack) throws  Throwable {
+    public void invokePost(URI uri, DefaultHttpHeaders headers, byte[] httpBody, HttpResultCallBack callBack) throws IOException, InterruptedException {
         Channel channel = connect();
         HttpReqSender sender = new HttpReqSender(uri, HttpMethod.POST, headers, callBack, httpBody);
         sender.send(channel);
     }
 
-    public void invokeGet(URI uri, DefaultHttpHeaders headers, HttpResultCallBack callBack) throws Throwable {
+    public void invokeGet(URI uri, DefaultHttpHeaders headers, HttpResultCallBack callBack) throws IOException, InterruptedException {
         Channel channel = connect();
         HttpReqSender sender =new HttpReqSender(uri, HttpMethod.GET, headers, callBack, null);
         sender.send(channel);
     }
 
-    public void invokeDelete(URI uri, DefaultHttpHeaders headers, HttpResultCallBack callBack) throws Throwable {
+    public void invokeDelete(URI uri, DefaultHttpHeaders headers, HttpResultCallBack callBack) throws IOException, InterruptedException {
         Channel channel = connect();
         HttpReqSender sender = new HttpReqSender(uri, HttpMethod.DELETE, headers, callBack, null);
         sender.send(channel);
     }
 
-    public void invokePut(URI uri, DefaultHttpHeaders headers, byte[] httpBody, HttpResultCallBack callBack) throws Throwable {
+    public void invokePut(URI uri, DefaultHttpHeaders headers, byte[] httpBody, HttpResultCallBack callBack) throws IOException, InterruptedException {
         Channel channel = connect();
         HttpReqSender sender = new HttpReqSender(uri, HttpMethod.PUT, headers, callBack, httpBody);
         sender.send(channel);
     }
 
 
-    public void invoke(URI uri, HttpMethod method, DefaultHttpHeaders headers, byte[] httpBody, HttpResultCallBack callBack) throws Throwable {
+    public void invoke(URI uri, HttpMethod method, DefaultHttpHeaders headers, byte[] httpBody, HttpResultCallBack callBack) throws IOException, InterruptedException {
         Channel channel = connect();
         HttpReqSender sender =new HttpReqSender(uri, method, headers, callBack, httpBody);
         sender.send(channel);
@@ -97,6 +97,7 @@ public class HttpConnection {
                 ChannelFuture future = client.getBootstrap().connect(address).sync();
                 channel = future.channel();
                 client.register(getKey(),this);
+                TRACER.writeInfo("Channel is null and connect to "+address.toString()+" successfully");
                 return channel;
             } else if (!channel.isRegistered()) {
                 if (callBackQueue != null && !callBackQueue.isEmpty()) {
@@ -108,9 +109,11 @@ public class HttpConnection {
                 ChannelFuture future = client.getBootstrap().connect(address).sync();
                 channel = future.channel();
                 reset();
+                TRACER.writeInfo("Channel is abandon and then connect to "+address.toString()+" successfully");
                 client.register(getKey(),this);
                 return channel;
             } else {
+                TRACER.writeInfo("Channel is useful and active");
                 return channel;
             }
         }

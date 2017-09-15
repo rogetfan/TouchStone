@@ -1,5 +1,6 @@
 package org.elise.test.tracer;
 
+import org.elise.test.config.TracerConfiguration;
 import org.elise.test.tracer.writer.ConsoleWriter;
 import org.elise.test.tracer.writer.FileWriter;
 import org.elise.test.tracer.writer.RemoteWriter;
@@ -34,28 +35,28 @@ public class Tracer
 	
     // Only compared with console level
     public boolean isInfoAvailable() {
-       return TracerConfig.getInstance().getConsoleLevel().compare(TracerLevelEnum.INFO);
+       return TracerConfiguration.getInstance().getConsoleLevel().compare(TracerLevelEnum.INFO);
     }
     // Only compared with console level
     public boolean isWarnAvailable() {
-    	return TracerConfig.getInstance().getConsoleLevel().compare(TracerLevelEnum.WARN);
+    	return TracerConfiguration.getInstance().getConsoleLevel().compare(TracerLevelEnum.WARN);
     }
     // Only compared with console level
     public boolean isErrorAvailable() {
-    	return TracerConfig.getInstance().getConsoleLevel().compare(TracerLevelEnum.ERROR);
+    	return TracerConfiguration.getInstance().getConsoleLevel().compare(TracerLevelEnum.ERROR);
     }
     // Only compared with console level
     public boolean isSpecialAvailable() {
-        return TracerConfig.getInstance().getConsoleLevel().compare(TracerLevelEnum.SPECIAL);
+        return TracerConfiguration.getInstance().getConsoleLevel().compare(TracerLevelEnum.SPECIAL);
     }
     private void writeTracerObject(TracerObject log) {
-        if(TracerConfig.getInstance().getConsoleLevel().compare(log.getLogLevel())){
+        if(TracerConfiguration.getInstance().getConsoleLevel().compare(log.getLogLevel())){
             consoleWriter.write(log);
         }
-        if(TracerConfig.getInstance().getFileLevel().compare(log.getLogLevel())){
+        if(TracerConfiguration.getInstance().getFileLevel().compare(log.getLogLevel())){
 
         }
-        if(TracerConfig.getInstance().getRemoteLevel().compare(log.getLogLevel())){
+        if(TracerConfiguration.getInstance().getRemoteLevel().compare(log.getLogLevel())){
 
         }
     }

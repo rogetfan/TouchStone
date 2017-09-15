@@ -3,7 +3,7 @@ package org.elise.test.exception;
 import java.util.concurrent.Executor;
 
 /**
- * Created by Administrator on 2017/5/31 0031.
+ * Created by Glenn on 2017/5/31 0031.
  */
 public class ExecutorException extends RuntimeException{
 

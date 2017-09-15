@@ -31,7 +31,7 @@ public class Test {
         httpclient.start();
 
         final HttpGet request = new HttpGet("http://www.cnblogs.com/likaitai/p/5431246.html");
-        for(int i=0;i<120000;i++) {
+        for(int i=0;i<12000;i++) {
             httpclient.execute(request, new FutureCallback<HttpResponse>() {
 
                 public void completed(final HttpResponse response) {

@@ -1,26 +1,27 @@
-package org.elise.test.tracer;
+package org.elise.test.config;
 
 import java.util.Properties;
-import org.elise.test.config.Configuration;
+
+import org.elise.test.tracer.TracerLevelEnum;
 
 
 /**
  * Created by Glenn on 2016/10/25.
  */
-public class TracerConfig implements Configuration {
+public class TracerConfiguration implements Configuration {
 
-	private static TracerConfig config;
+	private static TracerConfiguration config;
 	private TracerLevelEnum console;
 	private TracerLevelEnum remote;
 	private TracerLevelEnum file;
 
-	private TracerConfig() {
+	private TracerConfiguration() {
 
 	}
 
-	public static TracerConfig getInstance() {
+	public static TracerConfiguration getInstance() {
 		if (config == null) {
-			config = new TracerConfig();
+			config = new TracerConfiguration();
 		}
 		return config;
 	}

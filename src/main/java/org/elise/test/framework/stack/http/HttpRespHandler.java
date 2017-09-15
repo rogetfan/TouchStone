@@ -5,6 +5,7 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.util.ReferenceCountUtil;
+import org.elise.test.exception.InvalidResponseException;
 import org.elise.test.framework.transaction.http.HttpResultCallBack;
 import org.elise.test.tracer.Tracer;
 import org.elise.test.util.StringUtil;
@@ -41,35 +42,42 @@ public class HttpRespHandler extends ChannelInboundHandlerAdapter {
     }
 
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        if (msg instanceof FullHttpResponse) {
-            FullHttpResponse response = (FullHttpResponse) msg;
-            HttpResultCallBack callBack =HttpClient.getCallBack(ctx.channel().id().asLongText());
-            // Write response log
-            byte[] httpContent = new byte[response.content().readableBytes()];
-            response.content().readBytes(httpContent);
-            if (TRACER.isInfoAvailable()) {
-                writeResponseLog(ctx, callBack, httpContent, response.status().code(), response.protocolVersion().toString(), response.headers());
+        HttpResultCallBack callBack = HttpClient.getCallBack(ctx.channel().id().asLongText());
+        try {
+            if (msg instanceof FullHttpResponse) {
+                FullHttpResponse response = (FullHttpResponse) msg;
+                // Write response log
+                byte[] httpContent = new byte[response.content().readableBytes()];
+                response.content().readBytes(httpContent);
+                if (TRACER.isInfoAvailable()) {
+                    writeResponseLog(ctx, callBack, httpContent, response.status().code(), response.protocolVersion().toString(), response.headers());
+                }
+                HashMap<String, String> headers = new HashMap<>();
+                for (Map.Entry<String, String> entry : response.headers().entries())
+                    headers.put(entry.getKey(), entry.getValue());
+                HttpStatusHelper helper = HttpStatusHelper.valueOf(response.status().code());
+                switch (helper) {
+                    case INFORMATIONAL:
+                    case SUCCESSFUL:
+                        callBack.success(response.status().code(), httpContent, headers);
+                        break;
+                    case REDIRECTION:
+                        callBack.redirect(response.status().code(), httpContent, headers);
+                        break;
+                    case CLIENT_ERROR:
+                    case SERVER_ERROR:
+                        callBack.error(response.status().code(), httpContent, headers);
+                        break;
+                    default:
+                        callBack.failed(new Exception("Unsupported HTTP Status"));
+                }
+                ReferenceCountUtil.release(response);
+            }else{
+                throw new InvalidResponseException("msg is not a FullHttpResponse");
             }
-            HashMap<String, String> headers = new HashMap<>();
-            for (Map.Entry<String, String> entry : response.headers().entries())
-                headers.put(entry.getKey(), entry.getValue());
-            HttpStatusHelper helper = HttpStatusHelper.valueOf(response.status().code());
-            switch (helper) {
-                case INFORMATIONAL:
-                case SUCCESSFUL:
-                    callBack.success(response.status().code(), httpContent, headers);
-                    break;
-                case REDIRECTION:
-                    callBack.redirect(response.status().code(), httpContent, headers);
-                    break;
-                case CLIENT_ERROR:
-                case SERVER_ERROR:
-                    callBack.error(response.status().code(), httpContent, headers);
-                    break;
-                default:
-                    callBack.failed(new Exception("Unsupported HTTP Status"));
-            }
-            ReferenceCountUtil.release(response);
+        } catch (Throwable t) {
+            TRACER.writeError("Unknown Exception take place when handle response");
+            callBack.failed(t);
         }
     }
 
@@ -115,8 +123,8 @@ public class HttpRespHandler extends ChannelInboundHandlerAdapter {
     }
 
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        // TODO throws to LoadRunner library
-        TRACER.writeError("", cause);
+        HttpResultCallBack callBack = HttpClient.getCallBack(ctx.channel().id().asLongText());
+        callBack.failed(cause);
         ctx.close();
     }
 

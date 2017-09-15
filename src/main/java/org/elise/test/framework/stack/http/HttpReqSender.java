@@ -43,33 +43,38 @@ public class HttpReqSender {
         headers.set(HttpHeaderNames.CONTENT_LENGTH, request.content().readableBytes());
         request.headers().set(headers);
         channel.writeAndFlush(request).addListener((ChannelFutureListener) channelFuture -> {
-            if (channelFuture.isDone()) {
-                if (channelFuture.isSuccess()) {
-                    callBack.setSequenceNum(HttpClient.getCounter(channelFuture.channel().id().asLongText()));
-                    // Write request log
-                    if (tracer.isInfoAvailable()) {
-                        writeRequestLog(
-                                channelFuture.channel().id().asLongText(),
-                                request.method().toString(),
-                                uri.toASCIIString(),
-                                request.protocolVersion().toString(),
-                                request.headers()
-                        );
+            try {
+                if (channelFuture.isDone()) {
+                    if (channelFuture.isSuccess()) {
+                        callBack.setSequenceNum(HttpClient.getCounter(channelFuture.channel().id().asLongText()));
+                        // Write request log
+                        if (tracer.isInfoAvailable()) {
+                            writeRequestLog(
+                                    channelFuture.channel().id().asLongText(),
+                                    request.method().toString(),
+                                    uri.toASCIIString(),
+                                    request.protocolVersion().toString(),
+                                    request.headers()
+                            );
+                        }
+                        HttpClient.putCallBack(channelFuture.channel().id().asLongText(), callBack);
+                    } else if (channelFuture.isCancelled()) {
+                        channelFuture.channel().closeFuture().sync();
+                        tracer.writeError("Send request to remote " + channelFuture.channel().remoteAddress().toString() + " has been canceled");
+                        callBack.unreachable();
+                    } else if (channelFuture.cause() != null) {
+                        channelFuture.channel().closeFuture().sync();
+                        tracer.writeError("Exception take place when send request to remote " + channelFuture.channel().remoteAddress());
+                        callBack.failed(channelFuture.cause());
                     }
-                    HttpClient.putCallBack(channelFuture.channel().id().asLongText(), callBack);
-                } else if (channelFuture.isCancelled()) {
-                    channelFuture.channel().closeFuture().sync();
-                    tracer.writeError("Send request to remote " + channelFuture.channel().remoteAddress().toString() + " has been canceled");
-                    callBack.unreachable();
-                } else if (channelFuture.cause() != null) {
-                    channelFuture.channel().closeFuture().sync();
-                    tracer.writeError("Exception take place when send request to remote " + channelFuture.channel().remoteAddress());
-                    callBack.failed(channelFuture.cause());
-                }
 
-            } else {
-                tracer.writeError("Send request to remote " + channelFuture.channel().remoteAddress().toString() + " failed");
-                callBack.unreachable();
+                } else {
+                    tracer.writeError("Send request to remote " + channelFuture.channel().remoteAddress().toString() + " failed");
+                    callBack.unreachable();
+                }
+            } catch (Throwable t) {
+                    tracer.writeError("Unknown Exception take place when send request");
+                    callBack.failed(t);
             }
         });
     }
