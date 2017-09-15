@@ -26,117 +26,120 @@ public class TestHttp {
             ConfigLoader.getInstance().loadProperties("setting.properties", HttpStackConfiguration.getInstance(), TracerConfiguration.getInstance());
             HttpClient.start();
 
-            URI uri = new URI("http://177.77.77.186:8082/api/loginV1_2");
-            String postBody = "mobileNo=18620523707&passWord=MTIzNDU2&clientType=ios&versionCode=100";
-            DefaultHttpHeaders postHeader = new DefaultHttpHeaders();
-            postHeader.set(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED);
-            postHeader.set(HttpHeaderNames.HOST, "177.77.77.186");
-            postHeader.set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
-            for (int i = 0; ; i++) {
-                try {
-                    HttpConnection conn = HttpClient.getInstance(i, uri);
-                    conn.invokePost(
-                            uri,
-                            postHeader,
-                            postBody.getBytes("UTF-8"),
-                            new HttpResultCallBack() {
-                                long sequence;
-
-
-                                @Override
-                                public void success(Integer statusCode, Object httpContent, Map<String, String> headers) {
-                                    counter.incrementAndGet();
-                                }
-
-                                @Override
-                                public void redirect(Integer statusCode, Object httpContent, Map<String, String> headers) {
-
-                                }
-
-                                @Override
-                                public void error(Integer statusCode, Object httpContent, Map<String, String> headers) {
-
-                                }
-
-                                @Override
-                                public void failed(Throwable t) {
-                                    TRACER.writeError("",t);
-                                }
-
-                                @Override
-                                public void unreachable() {
-
-                                }
-
-                                @Override
-                                public long getSequenceNum() {
-                                    return sequence;
-                                }
-
-                                @Override
-                                public void setSequenceNum(long sequence) {
-                                    this.sequence = sequence;
-                                }
-                            });
-                    Thread.sleep( 10);
-                } catch (Throwable t) {
-                    TRACER.writeError("", t);
-                }
-            }
-//        URI uri = new URI("http://www.cnblogs.com/likaitai/p/5431246.html");
-//        DefaultHttpHeaders postHeader = new DefaultHttpHeaders();
-//        postHeader.set(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED);
-//        postHeader.set(HttpHeaderNames.HOST, "www.cnblogs.com");
-//        postHeader.set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
-//        for(int i=0;i<1280;i++) {
-//            try {
-//                HttpConnection conn = HttpClient.getInstance(i,uri);
-//                conn.invokeGet(
-//                        uri,
-//                        postHeader,
-//                        new HttpResultCallBack() {
-//                            long sequence;
+//            URI uri = new URI("http://177.77.77.186:8082/api/loginV1_2");
+//            String postBody = "mobileNo=18620523707&passWord=MTIzNDU2&clientType=ios&versionCode=100";
+//            DefaultHttpHeaders postHeader = new DefaultHttpHeaders();
+//            postHeader.set(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED);
+//            postHeader.set(HttpHeaderNames.HOST, "177.77.77.186");
+//            postHeader.set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
+//            for (int i = 0; ; i++) {
+//                try {
+//                    HttpConnection conn = HttpClient.getInstance(i, uri);
+//                    conn.invokePost(
+//                            uri,
+//                            postHeader,
+//                            postBody.getBytes("UTF-8"),
+//                            new HttpResultCallBack() {
+//                                long sequence;
 //
 //
-//                            @Override
-//                            public void success(Integer statusCode, Object httpContent, Map<String, String> headers) {
-//                                counter.incrementAndGet();
-//                            }
+//                                @Override
+//                                public void success(Integer statusCode, Object httpContent, Map<String, String> headers) {
+//                                    counter.incrementAndGet();
+//                                }
 //
-//                            @Override
-//                            public void redirect(Integer statusCode, Object httpContent, Map<String, String> headers) {
+//                                @Override
+//                                public void redirect(Integer statusCode, Object httpContent, Map<String, String> headers) {
 //
-//                            }
+//                                }
 //
-//                            @Override
-//                            public void error(Integer statusCode, Object httpContent, Map<String, String> headers) {
+//                                @Override
+//                                public void error(Integer statusCode, Object httpContent, Map<String, String> headers) {
 //
-//                            }
+//                                }
 //
-//                            @Override
-//                            public void failed(Throwable t) {
-//                                TRACER.writeError("",t);
-//                            }
+//                                @Override
+//                                public void failed(Throwable t) {
+//                                    TRACER.writeError("",t);
+//                                }
 //
-//                            @Override
-//                            public void unreachable() {
+//                                @Override
+//                                public void unreachable() {
 //
-//                            }
+//                                }
 //
-//                            @Override
-//                            public long getSequenceNum() {
-//                                return sequence;
-//                            }
+//                                @Override
+//                                public long getSequenceNum() {
+//                                    return sequence;
+//                                }
 //
-//                            @Override
-//                            public void setSequenceNum(long sequence) {
-//                                this.sequence = sequence;
-//                            }
-//                        });
-//            }catch (Throwable t){
-//                TRACER.writeError("",t);
+//                                @Override
+//                                public void setSequenceNum(long sequence) {
+//                                    this.sequence = sequence;
+//                                }
+//                            });
+//                    Thread.sleep( 10);
+//                } catch (Throwable t) {
+//                    TRACER.writeError("", t);
+//                }
 //            }
-//        }
+        URI uri = new URI("http://jw.tjut.edu.cn/");
+        DefaultHttpHeaders postHeader = new DefaultHttpHeaders();
+        postHeader.set(HttpHeaderNames.HOST, "jw.tjut.edu.cn");
+        postHeader.set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
+        postHeader.set(HttpHeaderNames.USER_AGENT,"PostmanRuntime/6.3.2");
+        postHeader.set(HttpHeaderNames.ACCEPT,"*/*");
+        postHeader.set(HttpHeaderNames.CACHE_CONTROL,"no-cache");
+        for(int i=0;i<1280;i++) {
+            try {
+                HttpConnection conn = HttpClient.getInstance(i,uri);
+                conn.invokeGet(
+                        uri,
+                        postHeader,
+                        new HttpResultCallBack() {
+                            long sequence;
+
+
+                            @Override
+                            public void success(Integer statusCode, Object httpContent, Map<String, String> headers) {
+                                counter.incrementAndGet();
+                            }
+
+                            @Override
+                            public void redirect(Integer statusCode, Object httpContent, Map<String, String> headers) {
+
+                            }
+
+                            @Override
+                            public void error(Integer statusCode, Object httpContent, Map<String, String> headers) {
+
+                            }
+
+                            @Override
+                            public void failed(Throwable t) {
+                                TRACER.writeError("",t);
+                            }
+
+                            @Override
+                            public void unreachable() {
+
+                            }
+
+                            @Override
+                            public long getSequenceNum() {
+                                return sequence;
+                            }
+
+                            @Override
+                            public void setSequenceNum(long sequence) {
+                                this.sequence = sequence;
+                            }
+                        });
+                Thread.sleep( 10);
+            }catch (Throwable t){
+                TRACER.writeError("",t);
+            }
+        }
 
 
 
