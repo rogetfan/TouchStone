@@ -26,12 +26,10 @@ public class TestHttp {
             ConfigLoader.getInstance().loadProperties("setting.properties", HttpStackConfiguration.getInstance(), TracerConfiguration.getInstance());
             HttpClient.start();
 
-//            URI uri = new URI("http://177.77.77.186:8082/api/loginV1_2");
+//            URI uri = new URI("http://177.77.77.186:8084/inner/login");
 //            String postBody = "mobileNo=18620523707&passWord=MTIzNDU2&clientType=ios&versionCode=100";
 //            DefaultHttpHeaders postHeader = new DefaultHttpHeaders();
 //            postHeader.set(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED);
-//            postHeader.set(HttpHeaderNames.HOST, "177.77.77.186");
-//            postHeader.set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
 //            for (int i = 0; ; i++) {
 //                try {
 //                    HttpConnection conn = HttpClient.getInstance(i, uri);
@@ -83,11 +81,10 @@ public class TestHttp {
 //                    TRACER.writeError("", t);
 //                }
 //            }
-        URI uri = new URI("https://www.baidu.com//");
+
+
+        URI uri = new URI("http://177.77.77.186:8084/inner/tokenExpired?token=800000028000015e89a1b9eb82000064");
         DefaultHttpHeaders postHeader = new DefaultHttpHeaders();
-        postHeader.set(HttpHeaderNames.HOST, "www.baidu.com");
-        postHeader.set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
-        postHeader.set(HttpHeaderNames.USER_AGENT,"PostmanRuntime/6.3.2");
         postHeader.set(HttpHeaderNames.ACCEPT,"*/*");
         postHeader.set(HttpHeaderNames.CACHE_CONTROL,"no-cache");
         for(int i=0;;i++) {

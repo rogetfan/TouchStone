@@ -33,7 +33,7 @@ public class HttpReqSender {
     }
 
     public void send(Channel channel) {
-        String uriStr = uri.getPath() + (uri.getQuery() == null ? "" : uri.getQuery());
+        String uriStr = uri.getPath() +"?"+ (uri.getQuery() == null ? "" : uri.getQuery());
         DefaultFullHttpRequest request;
         if (httpBody == null) {
             request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, method, uriStr);
@@ -41,7 +41,11 @@ public class HttpReqSender {
             ByteBuf body = PooledByteBufAllocator.DEFAULT.buffer().writeBytes(httpBody);
             request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, method, uriStr, body);
         }
-        //headers.set(HttpHeaderNames.CONTENT_LENGTH, request.content().readableBytes());
+        headers.set(HttpHeaderNames.CONTENT_LENGTH, request.content().readableBytes());
+        headers.set(HttpHeaderNames.HOST, uri.getHost());
+        headers.set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
+        headers.set(HttpHeaderNames.ACCEPT_ENCODING,HttpHeaderValues.GZIP_DEFLATE);
+        headers.set(HttpHeaderNames.USER_AGENT,"IAmFuckingYourMind/6.3.2");
         request.headers().set(headers);
         channel.writeAndFlush(request).addListener((ChannelFutureListener) channelFuture -> {
             try {

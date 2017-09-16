@@ -76,7 +76,7 @@ public class HttpRespHandler extends ChannelInboundHandlerAdapter {
                 throw new InvalidResponseException("msg is not a FullHttpResponse");
             }
         } catch (Throwable t) {
-            TRACER.writeError("Unknown Exception take place when handle response");
+            TRACER.writeError("Unknown Exception take place when handle response",t);
             callBack.failed(t);
         }
     }

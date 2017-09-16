@@ -80,9 +80,8 @@ public final class HttpClient {
                 ChannelPipeline p = ch.pipeline();
                 p.addLast("HttpResponseDecoder", new HttpResponseDecoder());
                 p.addLast("HttpRequestEncoder", new HttpRequestEncoder());
+                p.addLast("HttpContentDecompressor",new HttpContentDecompressor());
                 p.addLast("Aggregator", new HttpObjectAggregator(HttpStackConfiguration.getInstance().getMaxContentLength()));
-                p.addLast("HttpContentCompressor",new HttpContentCompressor());
-               // p.addLast("HttpContentCompressor",new HttpContentDecompressor());
                 p.addLast("HttpClient", new HttpRespHandler());
             }
         });
