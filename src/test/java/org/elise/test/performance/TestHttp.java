@@ -83,14 +83,14 @@ public class TestHttp {
 //                    TRACER.writeError("", t);
 //                }
 //            }
-        URI uri = new URI("http://jw.tjut.edu.cn/");
+        URI uri = new URI("https://www.baidu.com//");
         DefaultHttpHeaders postHeader = new DefaultHttpHeaders();
-        postHeader.set(HttpHeaderNames.HOST, "jw.tjut.edu.cn");
+        postHeader.set(HttpHeaderNames.HOST, "www.baidu.com");
         postHeader.set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
         postHeader.set(HttpHeaderNames.USER_AGENT,"PostmanRuntime/6.3.2");
         postHeader.set(HttpHeaderNames.ACCEPT,"*/*");
         postHeader.set(HttpHeaderNames.CACHE_CONTROL,"no-cache");
-        for(int i=0;i<1280;i++) {
+        for(int i=0;;i++) {
             try {
                 HttpConnection conn = HttpClient.getInstance(i,uri);
                 conn.invokeGet(
@@ -98,7 +98,6 @@ public class TestHttp {
                         postHeader,
                         new HttpResultCallBack() {
                             long sequence;
-
 
                             @Override
                             public void success(Integer statusCode, Object httpContent, Map<String, String> headers) {
@@ -135,15 +134,11 @@ public class TestHttp {
                                 this.sequence = sequence;
                             }
                         });
-                Thread.sleep( 10);
+                Thread.sleep(10);
             }catch (Throwable t){
                 TRACER.writeError("",t);
             }
         }
-
-
-
-
         }finally {
             System.out.println(counter.get());
             HttpClient.close();

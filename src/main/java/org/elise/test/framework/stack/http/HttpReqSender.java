@@ -33,14 +33,15 @@ public class HttpReqSender {
     }
 
     public void send(Channel channel) {
+        String uriStr = uri.getPath() + (uri.getQuery() == null ? "" : uri.getQuery());
         DefaultFullHttpRequest request;
         if (httpBody == null) {
-            request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, method, uri.toASCIIString());
+            request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, method, uriStr);
         } else {
             ByteBuf body = PooledByteBufAllocator.DEFAULT.buffer().writeBytes(httpBody);
-            request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, method, uri.toASCIIString(), body);
+            request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, method, uriStr, body);
         }
-        headers.set(HttpHeaderNames.CONTENT_LENGTH, request.content().readableBytes());
+        //headers.set(HttpHeaderNames.CONTENT_LENGTH, request.content().readableBytes());
         request.headers().set(headers);
         channel.writeAndFlush(request).addListener((ChannelFutureListener) channelFuture -> {
             try {
@@ -59,12 +60,12 @@ public class HttpReqSender {
                         }
                         HttpClient.putCallBack(channelFuture.channel().id().asLongText(), callBack);
                     } else if (channelFuture.isCancelled()) {
-                        channelFuture.channel().closeFuture().sync();
+                        channelFuture.channel().close().sync();
                         tracer.writeError("Send request to remote " + channelFuture.channel().remoteAddress().toString() + " has been canceled");
                         callBack.unreachable();
                     } else if (channelFuture.cause() != null) {
-                        channelFuture.channel().closeFuture().sync();
                         tracer.writeError("Exception take place when send request to remote " + channelFuture.channel().remoteAddress());
+                        channelFuture.channel().close().sync();
                         callBack.failed(channelFuture.cause());
                     }
 
@@ -73,8 +74,8 @@ public class HttpReqSender {
                     callBack.unreachable();
                 }
             } catch (Throwable t) {
-                    tracer.writeError("Unknown Exception take place when send request");
-                    callBack.failed(t);
+                tracer.writeError("Unknown Exception take place when send request");
+                callBack.failed(t);
             }
         });
     }
