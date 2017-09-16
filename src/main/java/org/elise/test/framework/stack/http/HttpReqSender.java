@@ -33,13 +33,16 @@ public class HttpReqSender {
     }
 
     public void send(Channel channel) {
-        String uriStr = uri.getPath() +"?"+ (uri.getQuery() == null ? "" : uri.getQuery());
+        StringBuilder uriBuilder = new StringBuilder();
+        uriBuilder.append(uri.getPath());
+        uriBuilder.append("?");
+        uriBuilder.append(uri.getQuery() == null ? "" : uri.getQuery());
         DefaultFullHttpRequest request;
         if (httpBody == null) {
-            request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, method, uriStr);
+            request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, method, uriBuilder.toString());
         } else {
             ByteBuf body = PooledByteBufAllocator.DEFAULT.buffer().writeBytes(httpBody);
-            request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, method, uriStr, body);
+            request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, method, uriBuilder.toString(), body);
         }
         headers.set(HttpHeaderNames.CONTENT_LENGTH, request.content().readableBytes());
         headers.set(HttpHeaderNames.HOST, uri.getHost());

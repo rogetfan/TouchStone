@@ -83,7 +83,7 @@ public class TestHttp {
 //            }
 
 
-        URI uri = new URI("http://177.77.77.186:8084/inner/tokenExpired?token=800000028000015e89a1b9eb82000064");
+        URI uri = new URI("http://www.baidu.com/");
         DefaultHttpHeaders postHeader = new DefaultHttpHeaders();
         postHeader.set(HttpHeaderNames.ACCEPT,"*/*");
         postHeader.set(HttpHeaderNames.CACHE_CONTROL,"no-cache");

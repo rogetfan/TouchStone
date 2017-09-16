@@ -71,13 +71,14 @@ public class HttpRespHandler extends ChannelInboundHandlerAdapter {
                     default:
                         callBack.failed(new Exception("Unsupported HTTP Status"));
                 }
-                ReferenceCountUtil.release(response);
             }else{
                 throw new InvalidResponseException("msg is not a FullHttpResponse");
             }
         } catch (Throwable t) {
             TRACER.writeError("Unknown Exception take place when handle response",t);
             callBack.failed(t);
+        } finally {
+            ReferenceCountUtil.release(msg);
         }
     }
 

@@ -21,11 +21,11 @@ import java.util.concurrent.*;
  */
 public final class HttpClient {
 
-    private static final EventLoopGroup workerGroup = new NioEventLoopGroup(HttpStackConfiguration.getInstance().getWorkerGroupThreads());
+    private static final EventLoopGroup WORKER_GROUP = new NioEventLoopGroup(HttpStackConfiguration.getInstance().getWorkerGroupThreads());
     private static final Bootstrap b = new Bootstrap();
 
-    private static final Map<SocketAddress, List<HttpConnection>> hostPool = new ConcurrentHashMap<>();
-    private static final Map<String, HttpConnection> connectionMap = new ConcurrentHashMap<>();
+    private static final Map<SocketAddress, List<HttpConnection>> HOST_POOL = new ConcurrentHashMap<>();
+    private static final Map<String, HttpConnection> CONNECTION_MAP = new ConcurrentHashMap<>();
 
     private static HttpClient client = null;
     private static Boolean isInitialized = false;
@@ -38,13 +38,13 @@ public final class HttpClient {
         }
         SocketAddress address = new InetSocketAddress(uri.getHost(), uri.getPort() == -1 ? 80 : uri.getPort());
         List<HttpConnection> connList ;
-        synchronized (hostPool) {
-            connList = hostPool.get(address);
+        synchronized (HOST_POOL) {
+            connList = HOST_POOL.get(address);
             if (connList == null) {
                 connList = new ArrayList<>(HttpStackConfiguration.getInstance().getMaxConnCountPerPort());
                 for (int i = 0; i < HttpStackConfiguration.getInstance().getMaxConnCountPerPort(); i++)
                     connList.add(new HttpConnection(client,i,address));
-                hostPool.put(address,connList);
+                HOST_POOL.put(address,connList);
             }
         }
         return connList.get(flag % HttpStackConfiguration.getInstance().getMaxConnCountPerPort());
@@ -57,7 +57,7 @@ public final class HttpClient {
     }
 
     private HttpClient() {
-        b.group(workerGroup);
+        b.group(WORKER_GROUP);
         b.channel(NioSocketChannel.class);
         b.option(ChannelOption.SO_KEEPALIVE, HttpStackConfiguration.getInstance().getSocketKeepAlive());
         b.option(ChannelOption.SO_RCVBUF,HttpStackConfiguration.getInstance().getSocketReceiveBuffer());
@@ -88,15 +88,15 @@ public final class HttpClient {
     }
 
     public static void close() {
-        workerGroup.shutdownGracefully();
+        WORKER_GROUP.shutdownGracefully();
     }
 
     protected void register(String channelId, HttpConnection conn){
-        connectionMap.put(channelId,conn);
+        CONNECTION_MAP.put(channelId,conn);
     }
 
     protected void unregister(String channelId){
-        connectionMap.remove(channelId);
+        CONNECTION_MAP.remove(channelId);
     }
 
     protected Bootstrap getBootstrap(){
@@ -104,7 +104,7 @@ public final class HttpClient {
     }
 
     protected static long getCounter(String channelId) throws Exception {
-        HttpConnection conn = connectionMap.get(channelId);
+        HttpConnection conn = CONNECTION_MAP.get(channelId);
         if (conn == null) {
             throw new Exception("Http Connection is null");
         } else {
@@ -113,7 +113,7 @@ public final class HttpClient {
     }
 
     protected static HttpResultCallBack getCallBack(String channelId) throws Exception {
-        HttpConnection conn = connectionMap.get(channelId);
+        HttpConnection conn = CONNECTION_MAP.get(channelId);
         if (conn == null) {
             throw new Exception("Http Connection is null");
         } else {
@@ -122,7 +122,7 @@ public final class HttpClient {
     }
 
     protected static void putCallBack(String channelId, HttpResultCallBack callBack) throws Exception {
-        HttpConnection conn = connectionMap.get(channelId);
+        HttpConnection conn = CONNECTION_MAP.get(channelId);
         if (conn == null) {
             throw new Exception("Http Connection is null");
         } else {
