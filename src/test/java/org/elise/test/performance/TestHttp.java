@@ -2,13 +2,11 @@ package org.elise.test.performance;
 
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.handler.codec.http.HttpHeaderValues;
 import org.elise.test.config.ConfigLoader;
 import org.elise.test.config.HttpStackConfiguration;
 import org.elise.test.config.TracerConfiguration;
 import org.elise.test.framework.stack.http.HttpClient;
 import org.elise.test.framework.stack.http.HttpConnection;
-import org.elise.test.framework.transaction.http.HttpResultCallBack;
 import org.elise.test.tracer.Tracer;
 
 import java.net.URI;

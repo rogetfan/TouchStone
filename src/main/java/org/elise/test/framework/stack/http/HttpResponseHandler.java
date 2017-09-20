@@ -6,7 +6,6 @@ import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.util.ReferenceCountUtil;
 import org.elise.test.exception.InvalidResponseException;
-import org.elise.test.framework.transaction.http.HttpResultCallBack;
 import org.elise.test.tracer.Tracer;
 import org.elise.test.util.StringUtil;
 
@@ -17,11 +16,11 @@ import java.util.Map;
 /**
  * Created by Glenn on 2017/9/8.
  */
-public class HttpRespHandler extends ChannelInboundHandlerAdapter {
+public class HttpResponseHandler extends ChannelInboundHandlerAdapter {
 
-    public static final Tracer TRACER = Tracer.getInstance(HttpRespHandler.class);
+    public static final Tracer TRACER = Tracer.getInstance(HttpResponseHandler.class);
 
-    public HttpRespHandler() {
+    public HttpResponseHandler() {
     }
 
 
@@ -42,7 +41,7 @@ public class HttpRespHandler extends ChannelInboundHandlerAdapter {
     }
 
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        HttpResultCallBack callBack = HttpClient.getCallBack(ctx.channel().id().asLongText());
+        HttpResultCallBack callBack = HttpClient.getCallBack(ctx.channel().id().asShortText());
         try {
             if (msg instanceof FullHttpResponse) {
                 FullHttpResponse response = (FullHttpResponse) msg;
@@ -86,7 +85,7 @@ public class HttpRespHandler extends ChannelInboundHandlerAdapter {
         StringBuilder sb = new StringBuilder();
         sb.append("--------------------- ");
         sb.append("Channel Id:");
-        sb.append(ctx.channel().id().asLongText());
+        sb.append(ctx.channel().id().asShortText());
         sb.append(" Sequence:");
         sb.append(callBack.getSequenceNum());
         sb.append(" ---------------------");
@@ -124,7 +123,7 @@ public class HttpRespHandler extends ChannelInboundHandlerAdapter {
     }
 
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        HttpResultCallBack callBack = HttpClient.getCallBack(ctx.channel().id().asLongText());
+        HttpResultCallBack callBack = HttpClient.getCallBack(ctx.channel().id().asShortText());
         callBack.failed(cause);
         ctx.close();
     }

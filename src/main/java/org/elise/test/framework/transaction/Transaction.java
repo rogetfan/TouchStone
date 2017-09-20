@@ -3,21 +3,14 @@ package org.elise.test.framework.transaction;
 /**
  * Created by Glenn on 2016/10/18.
  */
-public abstract class Transaction implements Runnable{
+public abstract class Transaction {
 
-    public Transaction(){
+    public TransactionCallback callback;
 
+    public abstract long getSequenceNum();
 
+    public abstract  void setSequenceNum(long sequence);
 
-    }
+    public abstract void sendRequest(Request request);
 
-    //public abstract VirtualUser getUser() throws Throwable;
-
-    public abstract void sendRequest() throws Throwable;
-
-    public abstract long getIntervalTimeStamp() throws Throwable;
-
-    public abstract Transaction getNextTransaction() throws Throwable;
-
-    public abstract void setNextTransaction(Transaction nextTransaction) throws Throwable;
 }

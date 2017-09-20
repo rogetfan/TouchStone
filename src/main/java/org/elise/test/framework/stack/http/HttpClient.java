@@ -8,7 +8,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.*;
 import org.elise.test.config.HttpStackConfiguration;
-import org.elise.test.framework.transaction.http.HttpResultCallBack;
+import org.elise.test.framework.stack.VirtualClient;
 
 import java.net.*;
 import java.util.ArrayList;
@@ -19,7 +19,7 @@ import java.util.concurrent.*;
 /**
  * Created by Glenn on 2017/9/8.
  */
-public final class HttpClient {
+public final class HttpClient implements VirtualClient {
 
     private static final EventLoopGroup WORKER_GROUP = new NioEventLoopGroup(HttpStackConfiguration.getInstance().getWorkerGroupThreads());
     private static final Bootstrap b = new Bootstrap();
@@ -30,7 +30,16 @@ public final class HttpClient {
     private static HttpClient client = null;
     private static Boolean isInitialized = false;
 
-    public static HttpConnection getInstance(Integer flag, URI uri) {
+    public static HttpClient getInstance(){
+        synchronized (isInitialized) {
+            if (!isInitialized) {
+                start();
+            }
+        }
+        return client;
+    }
+
+    public static HttpConnection getConnection(Integer flag, URI uri) {
         synchronized (isInitialized) {
             if (!isInitialized) {
                 start();
@@ -82,13 +91,14 @@ public final class HttpClient {
                 p.addLast("HttpRequestEncoder", new HttpRequestEncoder());
                 p.addLast("HttpContentDecompressor",new HttpContentDecompressor());
                 p.addLast("Aggregator", new HttpObjectAggregator(HttpStackConfiguration.getInstance().getMaxContentLength()));
-                p.addLast("HttpClient", new HttpRespHandler());
+                p.addLast("HttpClient", new HttpResponseHandler());
             }
         });
     }
 
     public static void close() {
         WORKER_GROUP.shutdownGracefully();
+        isInitialized = false;
     }
 
     protected void register(String channelId, HttpConnection conn){
@@ -112,21 +122,4 @@ public final class HttpClient {
         }
     }
 
-    protected static HttpResultCallBack getCallBack(String channelId) throws Exception {
-        HttpConnection conn = CONNECTION_MAP.get(channelId);
-        if (conn == null) {
-            throw new Exception("Http Connection is null");
-        } else {
-            return conn.getCallBack();
-        }
-    }
-
-    protected static void putCallBack(String channelId, HttpResultCallBack callBack) throws Exception {
-        HttpConnection conn = CONNECTION_MAP.get(channelId);
-        if (conn == null) {
-            throw new Exception("Http Connection is null");
-        } else {
-            conn.setCallBack(callBack);
-        }
-    }
 }
