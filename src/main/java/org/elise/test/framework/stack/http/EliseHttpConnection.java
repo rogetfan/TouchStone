@@ -104,7 +104,7 @@ public class EliseHttpConnection implements Connection {
             } else if (!channel.isRegistered()) {
                 if (callBackQueue != null && !callBackQueue.isEmpty()) {
                     for (Transaction transaction : callBackQueue)
-                        transaction.future.failed(new Exception("Channel has been destroy"));
+                        executor.exec(transaction,FutureLevel.FAILED,new Exception("Channel has been destroy"));
                 }
                 client.unregister(getKey());
                 ChannelFuture future = client.getBootstrap().connect(address).sync();

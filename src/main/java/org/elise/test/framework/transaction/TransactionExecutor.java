@@ -30,9 +30,10 @@ public class TransactionExecutor {
     public void exec(final Transaction transaction) {
         innerExecutor.execute(() -> {
             try {
+                transaction.timeStampBegin = System.currentTimeMillis();
                 transaction.sendRequest();
             } catch (Throwable t) {
-                transaction.future.failed(t);
+                transaction.future.failed(t,0L);
             }
         });
     }

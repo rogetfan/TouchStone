@@ -33,16 +33,17 @@ public class FutureExecutor {
 
     public void exec(final Transaction transaction, final FutureLevel level, final Throwable throwable) {
         innerExecutor.execute(() -> {
+            Long usedTimeStamp = System.currentTimeMillis()-transaction.timeStampBegin;
             try {
                  switch(level){
-                     case UNREACHABLE:transaction.future.unreachable();break;
-                     case SUCCESS:transaction.future.success(transaction.response);break;
-                     case ERROR:transaction.future.error(transaction.response);break;
-                     case FAILED: transaction.future.failed(throwable);
+                     case UNREACHABLE:transaction.future.unreachable(usedTimeStamp);break;
+                     case SUCCESS:transaction.future.success(transaction.response,usedTimeStamp);break;
+                     case ERROR:transaction.future.error(transaction.response,usedTimeStamp);break;
+                     case FAILED: transaction.future.failed(throwable,usedTimeStamp);
                      default:throw new ExecutorException("Future level not support");
                  }
             } catch (Throwable t) {
-                transaction.future.failed(t);
+                transaction.future.failed(t,usedTimeStamp);
             }
         });
     }

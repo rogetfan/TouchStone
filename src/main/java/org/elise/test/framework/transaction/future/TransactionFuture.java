@@ -9,11 +9,11 @@ import org.elise.test.framework.transaction.Response;
 
 public interface TransactionFuture {
 
-    void success(Response response);
+    void success(Response response,Long usedTimeStamp);
 
-    void error(Response response);
+    void error(Response response,Long usedTimeStamp);
 
-    void failed(Throwable e);
+    void failed(Throwable e,Long usedTimeStamp);
 
-    void unreachable();
+    void unreachable(Long usedTimeStamp);
 }

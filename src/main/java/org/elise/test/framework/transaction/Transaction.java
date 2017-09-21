@@ -14,6 +14,7 @@ public abstract class Transaction {
     protected Integer connToken;
     protected long sequence;
     protected VirtualClient client;
+    protected long timeStampBegin;
 
     public  long getSequenceNum(){
         return sequence;
