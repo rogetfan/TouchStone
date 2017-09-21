@@ -1,16 +1,35 @@
 package org.elise.test.framework.transaction;
 
+import org.elise.test.framework.stack.VirtualClient;
+import org.elise.test.framework.transaction.future.TransactionFuture;
+
 /**
  * Created by Glenn on 2016/10/18.
  */
 public abstract class Transaction {
 
-    public TransactionCallback callback;
+    public TransactionFuture future;
+    protected Response response;
+    protected Request request;
+    protected Integer connToken;
+    protected long sequence;
+    protected VirtualClient client;
 
-    public abstract long getSequenceNum();
+    public  long getSequenceNum(){
+        return sequence;
+    }
+    public  void setSequenceNum(long sequence){
+        this.sequence = sequence;
+    }
+    public  void setResponse(Response response){
+        this.response = response;
+    }
+    public  void setRequest(Request request){
+        this.request = request;
+    }
 
-    public abstract  void setSequenceNum(long sequence);
 
-    public abstract void sendRequest(Request request);
-
+    public abstract void sendRequest() throws Throwable;
+    public abstract String responseToString();
+    public abstract String requestToString();
 }

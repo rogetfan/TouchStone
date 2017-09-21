@@ -1,7 +1,7 @@
 package org.elise.test.exception;
 
 /**
- * Created by huxuehan on 2016/10/18.
+ * Created by Glenn on 2016/10/18.
  */
 public class NullRequestException extends Exception{
 

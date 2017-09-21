@@ -2,9 +2,11 @@ package org.elise.test.framework.transaction.http;
 
 import org.elise.test.framework.stack.http.EliseHttpMethod;
 import org.elise.test.framework.transaction.Request;
+import org.elise.test.util.StringUtil;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.nio.charset.Charset;
 import java.util.Map;
 
 /**
@@ -25,8 +27,8 @@ public class EliseHttpRequest implements Request {
         this.method = EliseHttpMethod.GET;
     }
 
-    public EliseHttpRequest(URI uri, Map<String,String> headers, String httpContent) throws UnsupportedEncodingException {
-        this(uri,headers, httpContent != null ?httpContent.getBytes("UTF-8"):new byte[0]);
+    public EliseHttpRequest(URI uri, Map<String,String> headers, String httpContent) {
+        this(uri,headers, httpContent != null ?httpContent.getBytes(Charset.forName("UTF-8")):new byte[0]);
     }
 
     public EliseHttpRequest(URI uri, Map<String,String> headers){
@@ -65,5 +67,32 @@ public class EliseHttpRequest implements Request {
         this.method = EliseHttpMethod.DELETE;
     }
 
-
+    @Override
+    public String toString(){
+        StringBuilder request = new StringBuilder();
+        request.append(method);
+        request.append(StringUtil.SPACE);
+        request.append(uri.getPath());
+        if(uri.getQuery() != null){
+            request.append("?");
+            request.append(uri.getQuery());
+        }
+        request.append(StringUtil.SPACE);
+        request.append("HTTP/1.1");
+        request.append(StringUtil.ENDLINE);
+        for (Map.Entry<String, String> entry : headers.entrySet()) {
+            request.append(entry.getKey()).append(":").append(entry.getValue());
+            request.append(StringUtil.ENDLINE);
+        }
+        request.append(StringUtil.ENDLINE);
+        request.append(StringUtil.ENDLINE);
+        if (httpContent == null) {
+            request.append("");
+        } else if (httpContent.length > 8 * 1024) {
+            request.append("REQUEST BOOOOOOODY　TOOOOOO LARGE");
+        } else {
+            request.append(new String(httpContent, Charset.forName("UTF-8")));
+        }
+        return request.toString();
+    }
 }

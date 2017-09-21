@@ -8,5 +8,6 @@ import org.elise.test.framework.transaction.Transaction;
 
 public interface Connection {
 
-     void invoke(Object request);
+     void invoke(Object request,Object attachment);
+
 }

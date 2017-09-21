@@ -5,7 +5,7 @@ package org.elise.test.framework.stack.http;
  */
 
 
-public enum HttpStatusHelper {
+public enum EliseHttpStatusHelper {
 
     INFORMATIONAL(1),
     SUCCESSFUL(2),
@@ -15,7 +15,7 @@ public enum HttpStatusHelper {
 
     private final int value;
 
-    HttpStatusHelper(int value) {
+    EliseHttpStatusHelper(int value) {
         this.value = value;
     }
 
@@ -23,11 +23,11 @@ public enum HttpStatusHelper {
         return this.value;
     }
 
-    public static HttpStatusHelper valueOf(int status) {
+    public static EliseHttpStatusHelper valueOf(int status) {
         int code = status / 100;
-        HttpStatusHelper[] types = values();
+        EliseHttpStatusHelper[] types = values();
         for (int i = 0; i < types.length; ++i) {
-            HttpStatusHelper helper = types[i];
+            EliseHttpStatusHelper helper = types[i];
             if (helper.value == code) {
                 return helper;
             }
@@ -36,22 +36,27 @@ public enum HttpStatusHelper {
     }
 
     public Boolean isInformational() {
-        return this.value() == HttpStatusHelper.INFORMATIONAL.value();
+        return this.value() == EliseHttpStatusHelper.INFORMATIONAL.value();
     }
 
     public Boolean isSuccessful() {
-        return this.value() == HttpStatusHelper.SUCCESSFUL.value();
+        return this.value() == EliseHttpStatusHelper.SUCCESSFUL.value();
     }
 
     public Boolean isRedirection() {
-        return this.value() == HttpStatusHelper.REDIRECTION.value();
+        return this.value() == EliseHttpStatusHelper.REDIRECTION.value();
     }
 
     public Boolean isClientError() {
-        return this.value() == HttpStatusHelper.CLIENT_ERROR.value();
+        return this.value() == EliseHttpStatusHelper.CLIENT_ERROR.value();
     }
 
     public Boolean isServerError() {
-        return this.value() == HttpStatusHelper.SERVER_ERROR.value();
+        return this.value() == EliseHttpStatusHelper.SERVER_ERROR.value();
+    }
+
+    public Boolean isError(){
+        return this.value() == EliseHttpStatusHelper.SERVER_ERROR.value()
+                || this.value() == EliseHttpStatusHelper.CLIENT_ERROR.value();
     }
 }

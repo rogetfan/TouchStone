@@ -6,6 +6,11 @@ import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.util.ReferenceCountUtil;
 import org.elise.test.exception.InvalidResponseException;
+import org.elise.test.framework.transaction.FutureExecutor;
+import org.elise.test.framework.transaction.future.FutureLevel;
+import org.elise.test.framework.transaction.Response;
+import org.elise.test.framework.transaction.Transaction;
+import org.elise.test.framework.transaction.http.EliseHttpResponse;
 import org.elise.test.tracer.Tracer;
 import org.elise.test.util.StringUtil;
 
@@ -16,11 +21,13 @@ import java.util.Map;
 /**
  * Created by Glenn on 2017/9/8.
  */
-public class HttpResponseHandler extends ChannelInboundHandlerAdapter {
+public class EliseHttpRespHandler extends ChannelInboundHandlerAdapter {
 
-    public static final Tracer TRACER = Tracer.getInstance(HttpResponseHandler.class);
+    public static final Tracer TRACER = Tracer.getInstance(EliseHttpRespHandler.class);
+    private  FutureExecutor executor = null;
 
-    public HttpResponseHandler() {
+    public EliseHttpRespHandler(FutureExecutor executor) {
+        this.executor = executor;
     }
 
 
@@ -41,72 +48,56 @@ public class HttpResponseHandler extends ChannelInboundHandlerAdapter {
     }
 
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        HttpResultCallBack callBack = HttpClient.getCallBack(ctx.channel().id().asShortText());
+        Transaction transaction = EliseHttpClient.getConnection(ctx.channel().id().asShortText()).getTransaction();
         try {
             if (msg instanceof FullHttpResponse) {
                 FullHttpResponse response = (FullHttpResponse) msg;
                 // Write response log
                 byte[] httpContent = new byte[response.content().readableBytes()];
                 response.content().readBytes(httpContent);
-                if (TRACER.isInfoAvailable()) {
-                    writeResponseLog(ctx, callBack, httpContent, response.status().code(), response.protocolVersion().toString(), response.headers());
-                }
                 HashMap<String, String> headers = new HashMap<>();
                 for (Map.Entry<String, String> entry : response.headers().entries())
                     headers.put(entry.getKey(), entry.getValue());
-                HttpStatusHelper helper = HttpStatusHelper.valueOf(response.status().code());
+                Response resp = new EliseHttpResponse(response.status().code(),httpContent,headers);
+                transaction.setResponse(resp);
+                if (TRACER.isInfoAvailable()) {
+                    writeResponseLog(ctx, transaction.getSequenceNum(),transaction.responseToString());
+                }
+                EliseHttpStatusHelper helper = EliseHttpStatusHelper.valueOf(response.status().code());
                 switch (helper) {
                     case INFORMATIONAL:
                     case SUCCESSFUL:
-                        callBack.success(response.status().code(), httpContent, headers);
-                        break;
                     case REDIRECTION:
-                        callBack.redirect(response.status().code(), httpContent, headers);
+                        executor.exec(transaction, FutureLevel.SUCCESS,null);
                         break;
                     case CLIENT_ERROR:
                     case SERVER_ERROR:
-                        callBack.error(response.status().code(), httpContent, headers);
+                        executor.exec(transaction, FutureLevel.SUCCESS,null);
                         break;
                     default:
-                        callBack.failed(new Exception("Unsupported HTTP Status"));
+                        executor.exec(transaction, FutureLevel.FAILED,new Exception("Unsupported HTTP Status"));
                 }
             }else{
                 throw new InvalidResponseException("msg is not a FullHttpResponse");
             }
         } catch (Throwable t) {
             TRACER.writeError("Unknown Exception take place when handle response",t);
-            callBack.failed(t);
+            executor.exec(transaction, FutureLevel.FAILED,t);
         } finally {
             ReferenceCountUtil.release(msg);
         }
     }
 
-    private void writeResponseLog(ChannelHandlerContext ctx, HttpResultCallBack callBack, byte[] httpContent, Integer status, String protocolVersion, HttpHeaders headers) throws UnsupportedEncodingException {
+    private void writeResponseLog(ChannelHandlerContext ctx, long sequenceNum, String response) {
         StringBuilder sb = new StringBuilder();
         sb.append("--------------------- ");
         sb.append("Channel Id:");
         sb.append(ctx.channel().id().asShortText());
         sb.append(" Sequence:");
-        sb.append(callBack.getSequenceNum());
+        sb.append(sequenceNum);
         sb.append(" ---------------------");
         sb.append(StringUtil.ENDLINE);
-        sb.append(protocolVersion);
-        sb.append(StringUtil.SPACE);
-        sb.append(status);
-        sb.append(StringUtil.ENDLINE);
-        for (Map.Entry<String, String> entry : headers.entries()) {
-            sb.append(entry.getKey());
-            sb.append(":");
-            sb.append(entry.getValue());
-            sb.append(StringUtil.ENDLINE);
-        }
-        sb.append(StringUtil.ENDLINE);
-        sb.append(StringUtil.ENDLINE);
-        if (httpContent.length > 128 * 1024) {
-            sb.append("REQUEST BOOOOOOODY　TOOOOOO LARGE");
-        } else {
-            sb.append(new String(httpContent, "UTF-8"));
-        }
+        sb.append(response);
         TRACER.writeInfo(sb.toString());
     }
 
@@ -123,9 +114,10 @@ public class HttpResponseHandler extends ChannelInboundHandlerAdapter {
     }
 
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        HttpResultCallBack callBack = HttpClient.getCallBack(ctx.channel().id().asShortText());
-        callBack.failed(cause);
-        ctx.close();
+        Transaction transaction = EliseHttpClient.getConnection(ctx.channel().id().asShortText()).getTransaction();
+        executor.exec(transaction,FutureLevel.FAILED,cause);
+        ctx.close().sync();
     }
+
 
 }

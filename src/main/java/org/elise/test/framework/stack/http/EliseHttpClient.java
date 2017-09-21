@@ -9,6 +9,7 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.*;
 import org.elise.test.config.HttpStackConfiguration;
 import org.elise.test.framework.stack.VirtualClient;
+import org.elise.test.framework.transaction.FutureExecutor;
 
 import java.net.*;
 import java.util.ArrayList;
@@ -19,18 +20,19 @@ import java.util.concurrent.*;
 /**
  * Created by Glenn on 2017/9/8.
  */
-public final class HttpClient implements VirtualClient {
+public final class EliseHttpClient implements VirtualClient {
 
     private static final EventLoopGroup WORKER_GROUP = new NioEventLoopGroup(HttpStackConfiguration.getInstance().getWorkerGroupThreads());
     private static final Bootstrap b = new Bootstrap();
 
-    private static final Map<SocketAddress, List<HttpConnection>> HOST_POOL = new ConcurrentHashMap<>();
-    private static final Map<String, HttpConnection> CONNECTION_MAP = new ConcurrentHashMap<>();
+    private static final Map<SocketAddress, List<EliseHttpConnection>> HOST_POOL = new ConcurrentHashMap<>();
+    private static final Map<String, EliseHttpConnection> CONNECTION_MAP = new ConcurrentHashMap<>();
 
-    private static HttpClient client = null;
+    private static EliseHttpClient client = null;
     private static Boolean isInitialized = false;
+    private static final FutureExecutor executor = new FutureExecutor(4, 64, 10240);
 
-    public static HttpClient getInstance(){
+    public static EliseHttpClient getInstance(){
         synchronized (isInitialized) {
             if (!isInitialized) {
                 start();
@@ -39,33 +41,36 @@ public final class HttpClient implements VirtualClient {
         return client;
     }
 
-    public static HttpConnection getConnection(Integer flag, URI uri) {
+    public EliseHttpConnection getConnection(Integer flag, URI uri) {
         synchronized (isInitialized) {
             if (!isInitialized) {
                 start();
             }
         }
         SocketAddress address = new InetSocketAddress(uri.getHost(), uri.getPort() == -1 ? 80 : uri.getPort());
-        List<HttpConnection> connList ;
+        List<EliseHttpConnection> connList ;
         synchronized (HOST_POOL) {
             connList = HOST_POOL.get(address);
             if (connList == null) {
                 connList = new ArrayList<>(HttpStackConfiguration.getInstance().getMaxConnCountPerPort());
                 for (int i = 0; i < HttpStackConfiguration.getInstance().getMaxConnCountPerPort(); i++)
-                    connList.add(new HttpConnection(client,i,address));
+                    connList.add(new EliseHttpConnection(client,i,address,executor));
                 HOST_POOL.put(address,connList);
             }
         }
         return connList.get(flag % HttpStackConfiguration.getInstance().getMaxConnCountPerPort());
     }
 
+    public static EliseHttpConnection getConnection(String channelId) {
+       return CONNECTION_MAP.get(channelId);
+    }
 
     public static void start() {
-        client = new HttpClient();
+        client = new EliseHttpClient();
         isInitialized = true;
     }
 
-    private HttpClient() {
+    private EliseHttpClient() {
         b.group(WORKER_GROUP);
         b.channel(NioSocketChannel.class);
         b.option(ChannelOption.SO_KEEPALIVE, HttpStackConfiguration.getInstance().getSocketKeepAlive());
@@ -91,17 +96,18 @@ public final class HttpClient implements VirtualClient {
                 p.addLast("HttpRequestEncoder", new HttpRequestEncoder());
                 p.addLast("HttpContentDecompressor",new HttpContentDecompressor());
                 p.addLast("Aggregator", new HttpObjectAggregator(HttpStackConfiguration.getInstance().getMaxContentLength()));
-                p.addLast("HttpClient", new HttpResponseHandler());
+                p.addLast("EliseHttpClient", new EliseHttpRespHandler(executor));
             }
         });
     }
 
     public static void close() {
         WORKER_GROUP.shutdownGracefully();
+        executor.shutDown();
         isInitialized = false;
     }
 
-    protected void register(String channelId, HttpConnection conn){
+    protected void register(String channelId, EliseHttpConnection conn){
         CONNECTION_MAP.put(channelId,conn);
     }
 
@@ -112,14 +118,4 @@ public final class HttpClient implements VirtualClient {
     protected Bootstrap getBootstrap(){
         return b;
     }
-
-    protected static long getCounter(String channelId) throws Exception {
-        HttpConnection conn = CONNECTION_MAP.get(channelId);
-        if (conn == null) {
-            throw new Exception("Http Connection is null");
-        } else {
-            return conn.getCounter();
-        }
-    }
-
 }

@@ -1,6 +1,6 @@
 package org.elise.test.framework.transaction.http;
 
-import org.elise.test.framework.stack.http.HttpClient;
+import org.elise.test.framework.stack.http.EliseHttpClient;
 import org.elise.test.framework.transaction.Transaction;
 
 /**
@@ -10,9 +10,9 @@ import org.elise.test.framework.transaction.Transaction;
 
 public class TransactionManager {
 
-    private HttpClient client;
+    private EliseHttpClient client;
 
-    public TransactionManager(HttpClient client){
+    public TransactionManager(EliseHttpClient client){
          this.client = client;
     }
 

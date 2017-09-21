@@ -1,8 +1,8 @@
 package org.elise.test.framework.transaction.http;
 
-import org.elise.test.framework.stack.http.HttpStatusHelper;
+import org.elise.test.framework.stack.http.EliseHttpStatusHelper;
 import org.elise.test.framework.transaction.Response;
-import org.elise.test.framework.transaction.TransactionCallback;
+import org.elise.test.framework.transaction.future.TransactionFuture;
 
 import java.util.Map;
 
@@ -11,23 +11,23 @@ import java.util.Map;
  */
 
 
-public abstract class HttpTransCallback implements TransactionCallback {
+public abstract class HttpTransFuture implements TransactionFuture {
 
     @Override
     public void success(Response response){
         EliseHttpResponse httpResponse = (EliseHttpResponse) response;
-        HttpStatusHelper helper = HttpStatusHelper.valueOf(httpResponse.getCode());
+        EliseHttpStatusHelper helper = EliseHttpStatusHelper.valueOf(httpResponse.getStatus());
         if(helper.isRedirection()){
-            redirect(httpResponse.getCode(),httpResponse.getBinaryContent(),httpResponse.getHttpHeaders());
+            redirect(httpResponse.getStatus(),httpResponse.getBinaryContent(),httpResponse.getHttpHeaders());
         }else if(helper.isSuccessful()){
-            success(httpResponse.getCode(),httpResponse.getBinaryContent(),httpResponse.getHttpHeaders());
+            success(httpResponse.getStatus(),httpResponse.getBinaryContent(),httpResponse.getHttpHeaders());
         }
     }
 
     @Override
-    public void error(Response response,String errorMsg){
+    public void error(Response response){
         EliseHttpResponse httpResponse = (EliseHttpResponse) response;
-        error(httpResponse.getCode(),httpResponse.getBinaryContent(),httpResponse.getHttpHeaders());
+        error(httpResponse.getStatus(),httpResponse.getBinaryContent(),httpResponse.getHttpHeaders());
     }
 
     /**

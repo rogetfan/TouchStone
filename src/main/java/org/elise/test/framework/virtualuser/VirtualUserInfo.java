@@ -1,6 +1,6 @@
 package org.elise.test.framework.virtualuser;
 
-import org.elise.test.framework.stack.http.HttpClient;
+import org.elise.test.framework.stack.http.EliseHttpClient;
 import org.elise.test.framework.transaction.Transaction;
 import org.elise.test.framework.transaction.http.TransactionManager;
 
@@ -18,7 +18,7 @@ public abstract class VirtualUserInfo {
 
     public void putItem(String keyName,Object object){
         ;
-        TransactionManager manager = new TransactionManager(HttpClient.getInstance());
+        TransactionManager manager = new TransactionManager(EliseHttpClient.getInstance());
         Transaction transaction = manager.create(1);
         items.put(keyName,object);
     }
