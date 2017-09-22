@@ -5,5 +5,5 @@ package org.elise.test.config;
  */
 
 
-public class VUserConfiguration {
+public class VirtualUserConfiguration {
 }

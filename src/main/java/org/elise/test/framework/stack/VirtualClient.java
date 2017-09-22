@@ -7,4 +7,8 @@ package org.elise.test.framework.stack;
 
 public interface VirtualClient {
 
+    void start() throws Throwable;
+    void close() throws Throwable;
+    Connection getConnection(Integer flag,Object host) throws Throwable;
+
 }

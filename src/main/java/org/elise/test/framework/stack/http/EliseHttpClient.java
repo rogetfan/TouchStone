@@ -6,16 +6,21 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.http.*;
+import io.netty.handler.codec.http.HttpContentDecompressor;
+import io.netty.handler.codec.http.HttpObjectAggregator;
+import io.netty.handler.codec.http.HttpRequestEncoder;
+import io.netty.handler.codec.http.HttpResponseDecoder;
 import org.elise.test.config.HttpStackConfiguration;
 import org.elise.test.framework.stack.VirtualClient;
-import org.elise.test.framework.transaction.FutureExecutor;
+import org.elise.test.framework.transaction.TransactionExecutor;
 
-import java.net.*;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by Glenn on 2017/9/8.
@@ -30,21 +35,27 @@ public final class EliseHttpClient implements VirtualClient {
 
     private static EliseHttpClient client = null;
     private static Boolean isInitialized = false;
-    private static final FutureExecutor executor = new FutureExecutor(4, 128, 10240);
+    private static TransactionExecutor executor ;
+    private static Object instanceLock = new Object();
 
-    public static EliseHttpClient getInstance(){
-        synchronized (isInitialized) {
-            if (!isInitialized) {
-                start();
+    public static EliseHttpClient getInstance() throws Exception {
+        synchronized (instanceLock) {
+            if (client == null) {
+                client = new EliseHttpClient();
             }
         }
         return client;
     }
 
-    public EliseHttpConnection getConnection(Integer flag, URI uri) {
+    public void setExecutor(TransactionExecutor executor){
+         this.executor = executor;
+    }
+
+    public EliseHttpConnection getConnection(Integer flag,Object host) throws Exception {
+        URI uri = (URI) host;
         synchronized (isInitialized) {
             if (!isInitialized) {
-                start();
+                throw new Exception("Client not start");
             }
         }
         SocketAddress address = new InetSocketAddress(uri.getHost(), uri.getPort() == -1 ? 80 : uri.getPort());
@@ -61,16 +72,18 @@ public final class EliseHttpClient implements VirtualClient {
         return connList.get(flag % HttpStackConfiguration.getInstance().getMaxConnCountPerPort());
     }
 
-    public static EliseHttpConnection getConnection(String channelId) {
+    public  EliseHttpConnection getConnection(String channelId) {
        return CONNECTION_MAP.get(channelId);
     }
 
-    public static void start() {
-        client = new EliseHttpClient();
-        isInitialized = true;
-    }
 
     private EliseHttpClient() {
+    }
+
+
+
+    @Override
+    public void start() {
         b.group(WORKER_GROUP);
         b.channel(NioSocketChannel.class);
         b.option(ChannelOption.SO_KEEPALIVE, HttpStackConfiguration.getInstance().getSocketKeepAlive());
@@ -82,7 +95,7 @@ public final class EliseHttpClient implements VirtualClient {
         b.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, HttpStackConfiguration.getInstance().getConnectTimeoutMillis());
         b.option(ChannelOption.WRITE_BUFFER_WATER_MARK,
                 new WriteBufferWaterMark(HttpStackConfiguration.getInstance().getWriteBufferWaterMark()[0],
-                HttpStackConfiguration.getInstance().getWriteBufferWaterMark()[1]));
+                        HttpStackConfiguration.getInstance().getWriteBufferWaterMark()[1]));
         b.option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
         b.option(ChannelOption.RCVBUF_ALLOCATOR,
                 new AdaptiveRecvByteBufAllocator(HttpStackConfiguration.getInstance().getReceiveBufferAllocator()[0],
@@ -99,9 +112,11 @@ public final class EliseHttpClient implements VirtualClient {
                 p.addLast("EliseHttpClient", new EliseHttpRespHandler(executor));
             }
         });
+        isInitialized = true;
     }
 
-    public static void close() {
+    @Override
+    public void close() {
         WORKER_GROUP.shutdownGracefully();
         executor.shutDown();
         isInitialized = false;

@@ -20,7 +20,7 @@ public class ThreadFactorys {
         return create("io", name,true);
     }
 
-    public static ThreadFactory create(final String perfix, final String name,final boolean daemon) {
+    public static ThreadFactory create(final String prefix, final String name,final boolean daemon) {
         return new ThreadFactory()
         {
             private int index = 0;
@@ -29,7 +29,7 @@ public class ThreadFactorys {
             public Thread newThread(Runnable r)
             {
                 Thread t = DEFAULT.newThread(r);
-                t.setName(String.format("%s-%s-%s", perfix, name, index));
+                t.setName(String.format("%s-%s-%s", prefix, name, index));
                 t.setDaemon(daemon);
                 index++;
                 return t;

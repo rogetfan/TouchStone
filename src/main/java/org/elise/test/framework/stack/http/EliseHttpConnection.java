@@ -3,19 +3,15 @@ package org.elise.test.framework.stack.http;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
-import io.netty.handler.codec.http.*;
-import io.netty.util.ReferenceCountUtil;
 import org.elise.test.framework.stack.Connection;
-import org.elise.test.framework.transaction.FutureExecutor;
-import org.elise.test.framework.transaction.future.FutureLevel;
 import org.elise.test.framework.transaction.Transaction;
+import org.elise.test.framework.transaction.TransactionExecutor;
+import org.elise.test.framework.transaction.future.FutureLevel;
 import org.elise.test.tracer.Tracer;
 import org.elise.test.util.StringUtil;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.SocketAddress;
-import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -28,60 +24,61 @@ public class EliseHttpConnection implements Connection {
 
     public static final Tracer TRACER = Tracer.getInstance(EliseHttpConnection.class);
 
-    private  final ConcurrentLinkedQueue<Transaction> callBackQueue = new ConcurrentLinkedQueue<>();
-    private  final AtomicLong counter = new AtomicLong();
-    private  Channel channel;
-    private  final Object connLock = new Object();
+    private final ConcurrentLinkedQueue<Transaction> callBackQueue = new ConcurrentLinkedQueue<>();
+    private final AtomicLong counter = new AtomicLong();
+    private Channel channel;
+    private final Object connLock = new Object();
     private EliseHttpClient client;
-    private  Integer index;
-    private  SocketAddress address;
-    private FutureExecutor executor = null;
+    private Integer index;
+    private SocketAddress address;
+    private TransactionExecutor executor = null;
 
-    public EliseHttpConnection(EliseHttpClient client, Integer index, SocketAddress address, FutureExecutor executor){
+    public EliseHttpConnection(EliseHttpClient client, Integer index, SocketAddress address, TransactionExecutor executor) {
         this.index = index;
         this.client = client;
         this.address = address;
         this.executor = executor;
     }
 
-    private void reset(){
+    private void reset() {
         counter.getAndSet(0);
         callBackQueue.clear();
     }
 
-    public Transaction getTransaction(){
+    public Transaction getTransaction() {
         return callBackQueue.poll();
     }
 
     @Override
-    public void invoke(Object request,final Object attachment) {
+    public void invoke(Object request, final Object attachment) {
         Transaction transaction = (Transaction) attachment;
         channel.writeAndFlush(request).addListener((ChannelFutureListener) channelFuture -> {
+            Long usedTimeStamp = System.currentTimeMillis() - transaction.getTransBeginTime();
             try {
                 if (channelFuture.isDone()) {
                     if (channelFuture.isSuccess()) {
                         transaction.setSequenceNum(counter.incrementAndGet());
                         // Write request log
                         if (TRACER.isInfoAvailable()) {
-                            writeRequestLog(transaction.requestToString(), transaction.getSequenceNum());
+                            writeRequestLog(transaction.getStrRequest(), transaction.getSequenceNum());
                         }
                         callBackQueue.add(transaction);
                     } else if (channelFuture.isCancelled()) {
                         close();
                         TRACER.writeError("Send request to remote " + channelFuture.channel().remoteAddress().toString() + " has been canceled");
-                        executor.exec(transaction, FutureLevel.UNREACHABLE,null);
+                        executor.execFuture(transaction, FutureLevel.UNREACHABLE, null, usedTimeStamp);
                     } else if (channelFuture.cause() != null) {
                         TRACER.writeError("Exception take place when send request to remote " + channelFuture.channel().remoteAddress());
                         close();
-                        executor.exec(transaction, FutureLevel.FAILED,channelFuture.cause());
+                        executor.execFuture(transaction, FutureLevel.FAILED, channelFuture.cause(), usedTimeStamp);
                     }
                 } else {
                     TRACER.writeError("Send request to remote " + channelFuture.channel().remoteAddress().toString() + " failed");
-                    executor.exec(transaction, FutureLevel.UNREACHABLE,null);
+                    executor.execFuture(transaction, FutureLevel.UNREACHABLE, null, usedTimeStamp);
                 }
             } catch (Throwable t) {
                 TRACER.writeError("Unknown Exception take place when send request");
-                executor.exec(transaction, FutureLevel.FAILED, t);
+                executor.execFuture(transaction, FutureLevel.FAILED, t, usedTimeStamp);
             }
         });
     }
@@ -97,26 +94,29 @@ public class EliseHttpConnection implements Connection {
                 client.getBootstrap().connect(address).sync();
                 ChannelFuture future = client.getBootstrap().connect(address).sync();
                 channel = future.channel();
-                client.register(getKey(),this);
-                TRACER.writeInfo("Channel is null and connect to "+address.toString()+" successfully");
-            } else if (!channel.isRegistered() || ! channel.isActive()) {
+                client.register(getKey(), this);
+                TRACER.writeInfo("Channel is null and connect to " + address.toString() + " successfully");
+            } else if (!channel.isRegistered() || !channel.isActive()) {
                 if (callBackQueue != null && !callBackQueue.isEmpty()) {
-                    for (Transaction transaction : callBackQueue)
-                        executor.exec(transaction,FutureLevel.FAILED,new Exception("Channel has been destroy"));
+
+                    for (Transaction transaction : callBackQueue) {
+                        Long usedTimeStamp = System.currentTimeMillis() - transaction.getTransBeginTime();
+                        executor.execFuture(transaction, FutureLevel.FAILED, new Exception("Channel has been destroy"), usedTimeStamp);
+                    }
                 }
                 client.unregister(getKey());
                 ChannelFuture future = client.getBootstrap().connect(address).sync();
                 channel = future.channel();
                 reset();
-                TRACER.writeInfo("Channel is abandon and then connect to "+address.toString()+" successfully");
-                client.register(getKey(),this);
+                TRACER.writeInfo("Channel is abandon and then connect to " + address.toString() + " successfully");
+                client.register(getKey(), this);
             } else {
                 TRACER.writeInfo("Channel is useful and active");
             }
         }
     }
 
-    private String getKey(){
+    private String getKey() {
         return channel.id().asShortText();
     }
 

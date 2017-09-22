@@ -16,6 +16,8 @@ public abstract class Transaction {
     protected VirtualClient client;
     protected long timeStampBegin;
 
+
+
     public  long getSequenceNum(){
         return sequence;
     }
@@ -28,9 +30,12 @@ public abstract class Transaction {
     public  void setRequest(Request request){
         this.request = request;
     }
-
+    public  long getTransBeginTime(){
+        return timeStampBegin;
+    }
 
     public abstract void sendRequest() throws Throwable;
-    public abstract String responseToString();
-    public abstract String requestToString();
+    public abstract Long getSleepTimeStamp() throws Throwable;
+    public abstract String getStrResponse() throws Throwable;
+    public abstract String getStrRequest() throws Throwable;
 }

@@ -16,8 +16,7 @@ public abstract class VirtualUserInfo {
         return items.get(keyName);
     }
 
-    public void putItem(String keyName,Object object){
-        ;
+    public void putItem(String keyName,Object object) throws Exception {
         TransactionManager manager = new TransactionManager(EliseHttpClient.getInstance());
         Transaction transaction = manager.create(1);
         items.put(keyName,object);

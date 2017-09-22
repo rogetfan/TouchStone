@@ -4,6 +4,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.handler.codec.http.*;
 import org.elise.test.exception.NullRequestException;
+import org.elise.test.framework.stack.Connection;
 import org.elise.test.framework.stack.http.EliseHttpClient;
 import org.elise.test.framework.stack.http.EliseHttpConnection;
 import org.elise.test.framework.transaction.Transaction;
@@ -32,15 +33,13 @@ public class HttpTransaction extends Transaction {
     }
 
     @Override
-    public void sendRequest() throws NullRequestException, IOException, InterruptedException {
+    public void sendRequest() throws Throwable {
         if (request == null) {
             throw new NullRequestException("the request is null has been discovered when it will be sent");
         } else {
             EliseHttpRequest httpRequest = (EliseHttpRequest) request;
-            EliseHttpConnection httpConnection = ((EliseHttpClient)client).getConnection(connToken, httpRequest.getUri());
-
+            Connection httpConnection = client.getConnection(connToken, httpRequest.getUri());
             httpConnection.connect();
-
             StringBuilder uriBuilder = new StringBuilder();
             uriBuilder.append(httpRequest.getUri().getPath());
             if(httpRequest.getUri().getQuery() != null){
@@ -55,7 +54,6 @@ public class HttpTransaction extends Transaction {
             headers.set(HttpHeaderNames.USER_AGENT, "IAmFuckingYourMind/6.3.2");
             for(Map.Entry<String,String> set : httpRequest.getHeaders().entrySet())
                 headers.set(set.getKey(),set.getValue());
-
             ByteBuf body;
             if (httpRequest.getHttpContent() == null) {
                 body = PooledByteBufAllocator.DEFAULT.buffer().writeBytes(new byte[0]);
@@ -67,19 +65,23 @@ public class HttpTransaction extends Transaction {
                     uriBuilder.toString(), body);
             request.headers().set(headers);
             request.setProtocolVersion(HttpVersion.HTTP_1_1);
-
             httpConnection.invoke(request,this);
         }
 
     }
 
     @Override
-    public String responseToString() {
+    public Long getSleepTimeStamp() {
+        return 10L;
+    }
+
+    @Override
+    public String getStrResponse() {
         return this.response.toString();
     }
 
     @Override
-    public String requestToString() {
+    public String getStrRequest() {
 
         EliseHttpRequest httpRequest = (EliseHttpRequest) request;
         StringBuilder request = new StringBuilder();
