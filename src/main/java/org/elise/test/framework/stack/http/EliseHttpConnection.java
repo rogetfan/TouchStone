@@ -55,7 +55,6 @@ public class EliseHttpConnection implements Connection {
 
     @Override
     public void invoke(Object request,final Object attachment) {
-        DefaultFullHttpRequest httpRequest = (DefaultFullHttpRequest) request;
         Transaction transaction = (Transaction) attachment;
         channel.writeAndFlush(request).addListener((ChannelFutureListener) channelFuture -> {
             try {
@@ -95,13 +94,12 @@ public class EliseHttpConnection implements Connection {
     public void connect() throws IOException, InterruptedException {
         synchronized (connLock) {
             if (channel == null) {
-
                 client.getBootstrap().connect(address).sync();
                 ChannelFuture future = client.getBootstrap().connect(address).sync();
                 channel = future.channel();
                 client.register(getKey(),this);
                 TRACER.writeInfo("Channel is null and connect to "+address.toString()+" successfully");
-            } else if (!channel.isRegistered()) {
+            } else if (!channel.isRegistered() || ! channel.isActive()) {
                 if (callBackQueue != null && !callBackQueue.isEmpty()) {
                     for (Transaction transaction : callBackQueue)
                         executor.exec(transaction,FutureLevel.FAILED,new Exception("Channel has been destroy"));

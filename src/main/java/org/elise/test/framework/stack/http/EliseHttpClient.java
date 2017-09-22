@@ -30,7 +30,7 @@ public final class EliseHttpClient implements VirtualClient {
 
     private static EliseHttpClient client = null;
     private static Boolean isInitialized = false;
-    private static final FutureExecutor executor = new FutureExecutor(4, 64, 10240);
+    private static final FutureExecutor executor = new FutureExecutor(4, 128, 10240);
 
     public static EliseHttpClient getInstance(){
         synchronized (isInitialized) {

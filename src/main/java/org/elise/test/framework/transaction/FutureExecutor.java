@@ -39,7 +39,7 @@ public class FutureExecutor {
                      case UNREACHABLE:transaction.future.unreachable(usedTimeStamp);break;
                      case SUCCESS:transaction.future.success(transaction.response,usedTimeStamp);break;
                      case ERROR:transaction.future.error(transaction.response,usedTimeStamp);break;
-                     case FAILED: transaction.future.failed(throwable,usedTimeStamp);
+                     case FAILED: transaction.future.failed(throwable,usedTimeStamp);break;
                      default:throw new ExecutorException("Future level not support");
                  }
             } catch (Throwable t) {
