@@ -1,0 +1,23 @@
+plugins {
+  id 'java'
+  id 'application'
+}
+
+group = 'org.elise.test'
+version = '0.0.1-SNAPSHOT'
+
+mainClassName = "${group}.framework.stack.http.TestHttp"
+
+sourceCompatibility = 1.8
+
+repositories {
+  maven { url = 'http://maven.aliyun.com/nexus/content/groups/public' }
+  jcenter()
+}
+
+dependencies {
+  compile 'io.netty:netty-all:4.1.15.Final'
+  compile fileTree(dir: 'lib', include: '*.jar')
+
+  testCompile 'junit:junit:3.8.1'
+}
